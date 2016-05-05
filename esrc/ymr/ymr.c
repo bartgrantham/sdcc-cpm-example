@@ -1,7 +1,25 @@
-#include "ym.h"
+#include "ymr.h"
 #include <setjmp.h>
+#include "../../src/hw/common/hw_common.h"
 
 #define printf cprintf
+
+/*
+//  DOESN'T WORK!!!  Why?  SDCC is stupid.
+void ym_reg(uint8_t i, uint8_t r) { //__naked {
+    i;  r;
+    __asm
+      // Too bad sdcc sucks and doesn't support the ED prefix, or this might actually work...
+      //out (129), l
+      //out (129), h
+      // ... oh well.  We'll do it the slow way.
+      ld a, l
+      out (129), a
+      ld a, h
+      out (129), a
+    __endasm;
+}
+*/
 
 static int get_sector(FILE *fp, unsigned short sector)
 {
@@ -22,7 +40,7 @@ FILE *fopen(const char* filename, const char* mode)
     char *fb, *fb_last;
     char *fe, *fe_last;
 
-    // XXX should probably not ignore "mode"...
+    mode; // XXX should probably not ignore "mode"...
 
     fp = malloc(sizeof(FILE));
     if(fp == NULL) {
@@ -154,11 +172,10 @@ int main() { // (int argc, char ** argv) {
     int argc;
     char **argv;
     FILE *ymfile;
-    char buffer[BUFSZ], *ymfilename, *songname, *authorname, *comment, registers[16];
+    char *ymfilename, *songname, *authorname, *comment;
     struct ymheader header;
-    int  i, j;
-    uint32_t u;
-    int exit_val;
+    int  i;
+    uint8_t r, v, z;
 
     sys_init(&argc, &argv);
     if(setjmp(exit_jmp) != 0)
@@ -204,13 +221,16 @@ int main() { // (int argc, char ** argv) {
     printf("AY-3-8910 register data follows:\n");
 
     printf("    ...\n");
-    for(u=0; u < header.frames; u++) {
-        for(j=0; j<16; j++) {
-            fgetc(ymfile);
+    for(i=0; i < header.frames; i++) {
+        for(r=0; r<16; r++) {
+            v = fgetc(ymfile);
+            hw_outp(129, r);
+            hw_outp(129, v);
             //printf("%.2X ", fgetc(ymfile));
         }
+        z = hw_inp(130);
+        while( z == hw_inp(130) ) {  }
         // wait 20ms or 16.6ms here
-        // output registers to AY-3-8910
     }
 
     for(i=0; i<4; i++) {
