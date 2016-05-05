@@ -16,3 +16,15 @@
 *.exe
 *.out
 *.app
+
+# SDCC detritus
+bin/*.arf
+bin/*.asm
+bin/*.com
+bin/*.ihx
+bin/*.lst
+bin/*.map
+bin/*.noi
+bin/*.rel
+bin/*.sym
+lbin/*
