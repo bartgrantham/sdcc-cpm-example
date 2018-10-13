@@ -1,0 +1,365 @@
+                              1 ;--------------------------------------------------------
+                              2 ; File Created by SDCC : free open source ANSI-C Compiler
+                              3 ; Version 3.6.0 #9615 (Mac OS X x86_64)
+                              4 ;--------------------------------------------------------
+                              5 	.module minboop
+                              6 	.optsdcc -mz80
+                              7 	
+                              8 ;--------------------------------------------------------
+                              9 ; Public variables in this module
+                             10 ;--------------------------------------------------------
+                             11 	.globl _main
+                             12 	.globl _ym_reg
+                             13 	.globl _exit
+                             14 	.globl _sys_init
+                             15 	.globl _cpm_sysfunc_init
+                             16 	.globl _cprintf
+                             17 	.globl _longjmp
+                             18 	.globl ___setjmp
+                             19 	.globl _exit_jmp
+                             20 	.globl _exit_value
+                             21 	.globl _sys_argv
+                             22 	.globl _sys_argv0
+                             23 ;--------------------------------------------------------
+                             24 ; special function registers
+                             25 ;--------------------------------------------------------
+                             26 ;--------------------------------------------------------
+                             27 ; ram data
+                             28 ;--------------------------------------------------------
+                             29 	.area _DATA
+   0000                      30 _sys_argv0::
+   0000                      31 	.ds 12
+   000C                      32 _sys_argv::
+   000C                      33 	.ds 16
+   001C                      34 _exit_value::
+   001C                      35 	.ds 2
+   001E                      36 _exit_jmp::
+   001E                      37 	.ds 6
+                             38 ;--------------------------------------------------------
+                             39 ; ram data
+                             40 ;--------------------------------------------------------
+                             41 	.area _INITIALIZED
+                             42 ;--------------------------------------------------------
+                             43 ; absolute external ram data
+                             44 ;--------------------------------------------------------
+                             45 	.area _DABS (ABS)
+                             46 ;--------------------------------------------------------
+                             47 ; global & static initialisations
+                             48 ;--------------------------------------------------------
+                             49 	.area _HOME
+                             50 	.area _GSINIT
+                             51 	.area _GSFINAL
+                             52 	.area _GSINIT
+                             53 ;--------------------------------------------------------
+                             54 ; Home
+                             55 ;--------------------------------------------------------
+                             56 	.area _HOME
+                             57 	.area _HOME
+                             58 ;--------------------------------------------------------
+                             59 ; code
+                             60 ;--------------------------------------------------------
+                             61 	.area _CODE
+                             62 ;minboop.c:8: void sys_init(int *argc, char ***argv)
+                             63 ;	---------------------------------
+                             64 ; Function sys_init
+                             65 ; ---------------------------------
+   0000                      66 _sys_init::
+   0000 DD E5         [15]   67 	push	ix
+   0002 DD 21 00 00   [14]   68 	ld	ix,#0
+   0006 DD 39         [15]   69 	add	ix,sp
+   0008 21 F9 FF      [10]   70 	ld	hl,#-7
+   000B 39            [11]   71 	add	hl,sp
+   000C F9            [ 6]   72 	ld	sp,hl
+                             73 ;minboop.c:13: cpm_sysfunc_init();
+   000D CDr00r00      [17]   74 	call	_cpm_sysfunc_init
+                             75 ;minboop.c:15: p = (char*)0x81; // CCP Command Tail
+   0010 DD 36 FA 81   [19]   76 	ld	-6 (ix),#0x81
+   0014 DD 36 FB 00   [19]   77 	ld	-5 (ix),#0x00
+                             78 ;minboop.c:16: count = *(unsigned char*)0x80; // CCP Command Tail Length
+   0018 3A 80 00      [13]   79 	ld	a,(#0x0080)
+   001B DD 77 F9      [19]   80 	ld	-7 (ix),a
+                             81 ;minboop.c:18: *argc = 1;
+   001E DD 7E 04      [19]   82 	ld	a,4 (ix)
+   0021 DD 77 FE      [19]   83 	ld	-2 (ix),a
+   0024 DD 7E 05      [19]   84 	ld	a,5 (ix)
+   0027 DD 77 FF      [19]   85 	ld	-1 (ix),a
+   002A DD 6E FE      [19]   86 	ld	l,-2 (ix)
+   002D DD 66 FF      [19]   87 	ld	h,-1 (ix)
+   0030 36 01         [10]   88 	ld	(hl),#0x01
+   0032 23            [ 6]   89 	inc	hl
+   0033 36 00         [10]   90 	ld	(hl),#0x00
+                             91 ;minboop.c:19: sys_argv[0] = strcpy(sys_argv0, "ym.com");
+   0035 11r00r00      [10]   92 	ld	de,#_sys_argv0
+   0038 21rF8r00      [10]   93 	ld	hl,#___str_0
+   003B AF            [ 4]   94 	xor	a, a
+   003C D5            [11]   95 	push	de
+   003D                      96 00151$:
+   003D BE            [ 7]   97 	cp	a, (hl)
+   003E ED A0         [16]   98 	ldi
+   0040 20 FB         [12]   99 	jr	NZ, 00151$
+   0042 C1            [10]  100 	pop	bc
+   0043 ED 43r0Cr00   [20]  101 	ld	(_sys_argv), bc
+                            102 ;minboop.c:21: p[count] = '\0'; // XXX count < 128!
+   0047 DD 7E F9      [19]  103 	ld	a,-7 (ix)
+   004A C6 81         [ 7]  104 	add	a, #0x81
+   004C 4F            [ 4]  105 	ld	c,a
+   004D 3E 00         [ 7]  106 	ld	a,#0x00
+   004F CE 00         [ 7]  107 	adc	a, #0x00
+   0051 47            [ 4]  108 	ld	b,a
+   0052 AF            [ 4]  109 	xor	a, a
+   0053 02            [ 7]  110 	ld	(bc),a
+                            111 ;minboop.c:23: while(*p == ' ')
+   0054                     112 00101$:
+   0054 DD 6E FA      [19]  113 	ld	l,-6 (ix)
+   0057 DD 66 FB      [19]  114 	ld	h,-5 (ix)
+   005A 4E            [ 7]  115 	ld	c,(hl)
+   005B 79            [ 4]  116 	ld	a,c
+   005C D6 20         [ 7]  117 	sub	a, #0x20
+   005E 20 0A         [12]  118 	jr	NZ,00103$
+                            119 ;minboop.c:24: p++;
+   0060 DD 34 FA      [23]  120 	inc	-6 (ix)
+   0063 20 EF         [12]  121 	jr	NZ,00101$
+   0065 DD 34 FB      [23]  122 	inc	-5 (ix)
+   0068 18 EA         [12]  123 	jr	00101$
+   006A                     124 00103$:
+                            125 ;minboop.c:25: if(!*p)
+   006A 79            [ 4]  126 	ld	a,c
+   006B B7            [ 4]  127 	or	a, a
+   006C CArE8r00      [10]  128 	jp	Z,00115$
+                            129 ;minboop.c:27: sys_argv[(*argc)++] = p;
+   006F DD 6E FE      [19]  130 	ld	l,-2 (ix)
+   0072 DD 66 FF      [19]  131 	ld	h,-1 (ix)
+   0075 4E            [ 7]  132 	ld	c,(hl)
+   0076 23            [ 6]  133 	inc	hl
+   0077 46            [ 7]  134 	ld	b,(hl)
+   0078 59            [ 4]  135 	ld	e, c
+   0079 50            [ 4]  136 	ld	d, b
+   007A 13            [ 6]  137 	inc	de
+   007B DD 6E FE      [19]  138 	ld	l,-2 (ix)
+   007E DD 66 FF      [19]  139 	ld	h,-1 (ix)
+   0081 73            [ 7]  140 	ld	(hl),e
+   0082 23            [ 6]  141 	inc	hl
+   0083 72            [ 7]  142 	ld	(hl),d
+   0084 69            [ 4]  143 	ld	l, c
+   0085 60            [ 4]  144 	ld	h, b
+   0086 29            [11]  145 	add	hl, hl
+   0087 11r0Cr00      [10]  146 	ld	de,#_sys_argv
+   008A 19            [11]  147 	add	hl,de
+   008B DD 7E FA      [19]  148 	ld	a,-6 (ix)
+   008E 77            [ 7]  149 	ld	(hl),a
+   008F 23            [ 6]  150 	inc	hl
+   0090 DD 7E FB      [19]  151 	ld	a,-5 (ix)
+   0093 77            [ 7]  152 	ld	(hl),a
+                            153 ;minboop.c:28: while(*p && (*p != ' '))
+   0094 DD 5E FA      [19]  154 	ld	e,-6 (ix)
+   0097 DD 56 FB      [19]  155 	ld	d,-5 (ix)
+   009A                     156 00107$:
+   009A 1A            [ 7]  157 	ld	a,(de)
+   009B 4F            [ 4]  158 	ld	c,a
+                            159 ;minboop.c:29: p++;
+   009C 21 01 00      [10]  160 	ld	hl,#0x0001
+   009F 19            [11]  161 	add	hl,de
+   00A0 DD 75 FC      [19]  162 	ld	-4 (ix),l
+   00A3 DD 74 FD      [19]  163 	ld	-3 (ix),h
+                            164 ;minboop.c:28: while(*p && (*p != ' '))
+   00A6 79            [ 4]  165 	ld	a,c
+   00A7 B7            [ 4]  166 	or	a, a
+   00A8 28 0D         [12]  167 	jr	Z,00109$
+   00AA 79            [ 4]  168 	ld	a,c
+   00AB D6 20         [ 7]  169 	sub	a, #0x20
+   00AD 28 08         [12]  170 	jr	Z,00109$
+                            171 ;minboop.c:29: p++;
+   00AF DD 5E FC      [19]  172 	ld	e,-4 (ix)
+   00B2 DD 56 FD      [19]  173 	ld	d,-3 (ix)
+   00B5 18 E3         [12]  174 	jr	00107$
+   00B7                     175 00109$:
+                            176 ;minboop.c:30: if(!*p)
+   00B7 79            [ 4]  177 	ld	a,c
+   00B8 B7            [ 4]  178 	or	a, a
+   00B9 28 2D         [12]  179 	jr	Z,00115$
+                            180 ;minboop.c:32: *p++ = '\0';
+   00BB AF            [ 4]  181 	xor	a, a
+   00BC 12            [ 7]  182 	ld	(de),a
+   00BD DD 7E FC      [19]  183 	ld	a,-4 (ix)
+   00C0 DD 77 FA      [19]  184 	ld	-6 (ix),a
+   00C3 DD 7E FD      [19]  185 	ld	a,-3 (ix)
+   00C6 DD 77 FB      [19]  186 	ld	-5 (ix),a
+                            187 ;minboop.c:33: } while(*p && (*argc < 8));
+   00C9 DD 6E FA      [19]  188 	ld	l,-6 (ix)
+   00CC DD 66 FB      [19]  189 	ld	h,-5 (ix)
+   00CF 7E            [ 7]  190 	ld	a,(hl)
+   00D0 B7            [ 4]  191 	or	a, a
+   00D1 28 15         [12]  192 	jr	Z,00115$
+   00D3 DD 6E FE      [19]  193 	ld	l,-2 (ix)
+   00D6 DD 66 FF      [19]  194 	ld	h,-1 (ix)
+   00D9 4E            [ 7]  195 	ld	c,(hl)
+   00DA 23            [ 6]  196 	inc	hl
+   00DB 46            [ 7]  197 	ld	b,(hl)
+   00DC 79            [ 4]  198 	ld	a,c
+   00DD D6 08         [ 7]  199 	sub	a, #0x08
+   00DF 78            [ 4]  200 	ld	a,b
+   00E0 17            [ 4]  201 	rla
+   00E1 3F            [ 4]  202 	ccf
+   00E2 1F            [ 4]  203 	rra
+   00E3 DE 80         [ 7]  204 	sbc	a, #0x80
+   00E5 DAr54r00      [10]  205 	jp	C,00101$
+   00E8                     206 00115$:
+                            207 ;minboop.c:35: *argv = sys_argv;
+   00E8 DD 6E 06      [19]  208 	ld	l,6 (ix)
+   00EB DD 66 07      [19]  209 	ld	h,7 (ix)
+   00EE 36r0C         [10]  210 	ld	(hl),#<(_sys_argv)
+   00F0 23            [ 6]  211 	inc	hl
+   00F1 36s00         [10]  212 	ld	(hl),#>(_sys_argv)
+   00F3 DD F9         [10]  213 	ld	sp, ix
+   00F5 DD E1         [14]  214 	pop	ix
+   00F7 C9            [10]  215 	ret
+   00F8                     216 ___str_0:
+   00F8 79 6D 2E 63 6F 6D   217 	.ascii "ym.com"
+   00FE 00                  218 	.db 0x00
+                            219 ;minboop.c:41: void exit(int value)
+                            220 ;	---------------------------------
+                            221 ; Function exit
+                            222 ; ---------------------------------
+   00FF                     223 _exit::
+                            224 ;minboop.c:43: exit_value = value;
+   00FF 21 02 00      [10]  225 	ld	hl, #2+0
+   0102 39            [11]  226 	add	hl, sp
+   0103 7E            [ 7]  227 	ld	a, (hl)
+   0104 32r1Cr00      [13]  228 	ld	(#_exit_value + 0),a
+   0107 21 03 00      [10]  229 	ld	hl, #2+1
+   010A 39            [11]  230 	add	hl, sp
+   010B 7E            [ 7]  231 	ld	a, (hl)
+   010C 32r1Dr00      [13]  232 	ld	(#_exit_value + 1),a
+                            233 ;minboop.c:44: longjmp(exit_jmp, 1);
+   010F 21 01 00      [10]  234 	ld	hl,#0x0001
+   0112 E5            [11]  235 	push	hl
+   0113 21r1Er00      [10]  236 	ld	hl,#_exit_jmp
+   0116 E5            [11]  237 	push	hl
+   0117 CDr00r00      [17]  238 	call	_longjmp
+   011A C9            [10]  239 	ret
+                            240 ;minboop.c:47: void ym_reg(uint8_t i, uint8_t r) { //__naked {
+                            241 ;	---------------------------------
+                            242 ; Function ym_reg
+                            243 ; ---------------------------------
+   011B                     244 _ym_reg::
+                            245 ;minboop.c:58: __endasm;
+   011B 7D            [ 4]  246 	ld	a, l
+   011C D3 81         [11]  247 	out	(129), a
+   011E 7C            [ 4]  248 	ld	a, h
+   011F D3 81         [11]  249 	out	(129), a
+   0121 C9            [10]  250 	ret
+                            251 ;minboop.c:60: int main() { // (int argc, char ** argv) {
+                            252 ;	---------------------------------
+                            253 ; Function main
+                            254 ; ---------------------------------
+   0122                     255 _main::
+   0122 DD E5         [15]  256 	push	ix
+   0124 DD 21 00 00   [14]  257 	ld	ix,#0
+   0128 DD 39         [15]  258 	add	ix,sp
+   012A F5            [11]  259 	push	af
+   012B F5            [11]  260 	push	af
+                            261 ;minboop.c:64: sys_init(&argc, &argv);
+   012C 21 00 00      [10]  262 	ld	hl,#0x0000
+   012F 39            [11]  263 	add	hl,sp
+   0130 4D            [ 4]  264 	ld	c,l
+   0131 44            [ 4]  265 	ld	b,h
+   0132 21 02 00      [10]  266 	ld	hl,#0x0002
+   0135 39            [11]  267 	add	hl,sp
+   0136 C5            [11]  268 	push	bc
+   0137 E5            [11]  269 	push	hl
+   0138 CDr00r00      [17]  270 	call	_sys_init
+   013B F1            [10]  271 	pop	af
+                            272 ;minboop.c:65: if(setjmp(exit_jmp) != 0)
+   013C 21r1Er00      [10]  273 	ld	hl, #_exit_jmp
+   013F E3            [19]  274 	ex	(sp),hl
+   0140 CDr00r00      [17]  275 	call	___setjmp
+   0143 F1            [10]  276 	pop	af
+   0144 7C            [ 4]  277 	ld	a,h
+   0145 B5            [ 4]  278 	or	a,l
+   0146 28 05         [12]  279 	jr	Z,00102$
+                            280 ;minboop.c:66: return exit_value;
+   0148 2Ar1Cr00      [16]  281 	ld	hl,(_exit_value)
+   014B 18 7B         [12]  282 	jr	00103$
+   014D                     283 00102$:
+                            284 ;minboop.c:68: printf("Boopo!\n");
+   014D 21rCDr01      [10]  285 	ld	hl,#___str_1
+   0150 E5            [11]  286 	push	hl
+   0151 CDr00r00      [17]  287 	call	_cprintf
+                            288 ;minboop.c:71: ym_reg(0, 0xFD);   // channel A 0:7
+   0154 21 00 FD      [10]  289 	ld	hl, #0xfd00
+   0157 E3            [19]  290 	ex	(sp),hl
+   0158 CDr1Br01      [17]  291 	call	_ym_reg
+                            292 ;minboop.c:72: ym_reg(1, 0);      // channel A 8:11 (bottom nybble)
+   015B 21 01 00      [10]  293 	ld	hl, #0x0001
+   015E E3            [19]  294 	ex	(sp),hl
+   015F CDr1Br01      [17]  295 	call	_ym_reg
+                            296 ;minboop.c:73: ym_reg(2, 0xBA);   // channel B 0:7
+   0162 21 02 BA      [10]  297 	ld	hl, #0xba02
+   0165 E3            [19]  298 	ex	(sp),hl
+   0166 CDr1Br01      [17]  299 	call	_ym_reg
+                            300 ;minboop.c:74: ym_reg(3, 0);      // channel B 8:11 (bottom nybble)
+   0169 21 03 00      [10]  301 	ld	hl, #0x0003
+   016C E3            [19]  302 	ex	(sp),hl
+   016D CDr1Br01      [17]  303 	call	_ym_reg
+                            304 ;minboop.c:75: ym_reg(4, 0x8E);   // channel C 0:7
+   0170 21 04 8E      [10]  305 	ld	hl, #0x8e04
+   0173 E3            [19]  306 	ex	(sp),hl
+   0174 CDr1Br01      [17]  307 	call	_ym_reg
+                            308 ;minboop.c:76: ym_reg(5, 0);      // channel C 8:11 (bottom nybble)
+   0177 21 05 00      [10]  309 	ld	hl, #0x0005
+   017A E3            [19]  310 	ex	(sp),hl
+   017B CDr1Br01      [17]  311 	call	_ym_reg
+                            312 ;minboop.c:77: ym_reg(6, 0);      // noise period
+   017E 21 06 00      [10]  313 	ld	hl, #0x0006
+   0181 E3            [19]  314 	ex	(sp),hl
+   0182 CDr1Br01      [17]  315 	call	_ym_reg
+                            316 ;minboop.c:78: ym_reg(7, 0x38);   // tone/noise enable
+   0185 21 07 38      [10]  317 	ld	hl, #0x3807
+   0188 E3            [19]  318 	ex	(sp),hl
+   0189 CDr1Br01      [17]  319 	call	_ym_reg
+                            320 ;minboop.c:79: ym_reg(8, 0x10);   // channel A volume
+   018C 21 08 10      [10]  321 	ld	hl, #0x1008
+   018F E3            [19]  322 	ex	(sp),hl
+   0190 CDr1Br01      [17]  323 	call	_ym_reg
+                            324 ;minboop.c:80: ym_reg(9, 0x10);   // channel B volume
+   0193 21 09 10      [10]  325 	ld	hl, #0x1009
+   0196 E3            [19]  326 	ex	(sp),hl
+   0197 CDr1Br01      [17]  327 	call	_ym_reg
+                            328 ;minboop.c:81: ym_reg(10, 0x10);  // channel C volume
+   019A 21 0A 10      [10]  329 	ld	hl, #0x100a
+   019D E3            [19]  330 	ex	(sp),hl
+   019E CDr1Br01      [17]  331 	call	_ym_reg
+                            332 ;minboop.c:82: ym_reg(11, 0xA1);  // envelope period 0:7
+   01A1 21 0B A1      [10]  333 	ld	hl, #0xa10b
+   01A4 E3            [19]  334 	ex	(sp),hl
+   01A5 CDr1Br01      [17]  335 	call	_ym_reg
+                            336 ;minboop.c:83: ym_reg(12, 0x07);  // envelope period 8:15
+   01A8 21 0C 07      [10]  337 	ld	hl, #0x070c
+   01AB E3            [19]  338 	ex	(sp),hl
+   01AC CDr1Br01      [17]  339 	call	_ym_reg
+                            340 ;minboop.c:84: ym_reg(13, 0x09);  // envelope shape 0:3 (bottom nybble)
+   01AF 21 0D 09      [10]  341 	ld	hl, #0x090d
+   01B2 E3            [19]  342 	ex	(sp),hl
+   01B3 CDr1Br01      [17]  343 	call	_ym_reg
+                            344 ;minboop.c:85: ym_reg(14, 0x00);  // port A (unused)
+   01B6 21 0E 00      [10]  345 	ld	hl, #0x000e
+   01B9 E3            [19]  346 	ex	(sp),hl
+   01BA CDr1Br01      [17]  347 	call	_ym_reg
+                            348 ;minboop.c:86: ym_reg(15, 0x00);  // port B (unused)
+   01BD 21 0F 00      [10]  349 	ld	hl, #0x000f
+   01C0 E3            [19]  350 	ex	(sp),hl
+   01C1 CDr1Br01      [17]  351 	call	_ym_reg
+   01C4 F1            [10]  352 	pop	af
+                            353 ;minboop.c:88: return 0;
+   01C5 21 00 00      [10]  354 	ld	hl,#0x0000
+   01C8                     355 00103$:
+   01C8 DD F9         [10]  356 	ld	sp, ix
+   01CA DD E1         [14]  357 	pop	ix
+   01CC C9            [10]  358 	ret
+   01CD                     359 ___str_1:
+   01CD 42 6F 6F 70 6F 21   360 	.ascii "Boopo!"
+   01D3 0A                  361 	.db 0x0a
+   01D4 00                  362 	.db 0x00
+                            363 	.area _CODE
+                            364 	.area _INITIALIZER
+                            365 	.area _CABS (ABS)

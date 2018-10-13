@@ -21,6 +21,8 @@ void ym_reg(uint8_t i, uint8_t r) { //__naked {
 }
 */
 
+char *bufferloc;
+
 static int get_sector(FILE *fp, unsigned short sector)
 {
     int rval;
@@ -167,22 +169,33 @@ void exit(int value)
     longjmp(exit_jmp, 1);
 }
 
+void writeym(char * registers) {
+    registers;
+    __asm
+        ld      hl, #2+0
+        add     hl, sp
+        ld b, #16
+        ld c, #129
+        otir
+    __endasm;
+}
+
 
 int main() { // (int argc, char ** argv) {
     int argc;
     char **argv;
     FILE *ymfile;
-    char *ymfilename, *songname, *authorname, *comment;
+    char *ymfilename, *songname, *authorname, *comment, buffer[16];
     struct ymheader header;
     int  i;
-    uint8_t r, v, z;
+    uint8_t r, z;
 
     sys_init(&argc, &argv);
     if(setjmp(exit_jmp) != 0)
         return exit_value;
 
     if ( argc < 2 ) {
-        printf("Usage: ym ymtune.ym\n");
+        printf("Usage: ymr ymrawsng.ymr\n");
         return 1;
     }
 
@@ -222,15 +235,31 @@ int main() { // (int argc, char ** argv) {
 
     printf("    ...\n");
     for(i=0; i < header.frames; i++) {
+        // fill buffer
         for(r=0; r<16; r++) {
-            v = fgetc(ymfile);
-            hw_outp(129, r);
-            hw_outp(129, v);
-            //printf("%.2X ", fgetc(ymfile));
+            buffer[r] = fgetc(ymfile);
         }
+        // wait here
         z = hw_inp(130);
         while( z == hw_inp(130) ) {  }
-        // wait 20ms or 16.6ms here
+        // write buffer
+
+        bufferloc = buffer;
+        __asm
+            push bc
+            push hl
+            ld      hl, (_bufferloc)
+            ld b, #16
+            ld c, #129
+            out (c), b
+            otir
+            pop hl
+            pop bc
+        __endasm;
+//        for(r=0; r<16; r++) {
+//            hw_outp(129, r);
+//            hw_outp(129, buffer[r]);
+//        }
     }
 
     for(i=0; i<4; i++) {
@@ -240,6 +269,23 @@ int main() { // (int argc, char ** argv) {
     }
 
     printf("After \"End!\"    : %.2X\n", fgetc(ymfile));
+
+    for(r=0; r<16; r++) {
+        buffer[r] = 0;
+    }
+    bufferloc = buffer;
+
+    __asm
+        push bc
+        push hl
+        ld      hl, (_bufferloc)
+        ld b, #16
+        ld c, #129
+        out (c), b
+        otir
+        pop hl
+        pop bc
+    __endasm;
 
     return 0;
 }

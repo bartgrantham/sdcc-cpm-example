@@ -1,0 +1,1114 @@
+                              1 ;--------------------------------------------------------
+                              2 ; File Created by SDCC : free open source ANSI-C Compiler
+                              3 ; Version 3.6.0 #9615 (Mac OS X x86_64)
+                              4 ;--------------------------------------------------------
+                              5 	.module hw_modprn02
+                              6 	.optsdcc -mz80
+                              7 	
+                              8 ;--------------------------------------------------------
+                              9 ; Public variables in this module
+                             10 ;--------------------------------------------------------
+                             11 	.globl _hw_addInterruptHandler
+                             12 	.globl _hw_inp
+                             13 	.globl _hw_outp
+                             14 	.globl _setup_modprn
+                             15 	.globl _ctc_init
+                             16 	.globl _sio_init
+                             17 	.globl _modprn_setupInterrupts
+                             18 	.globl _modprn_outch
+                             19 	.globl _modprn_getch
+                             20 	.globl _modprn_getchBuf
+                             21 	.globl _modprn_getBreakStatus
+                             22 	.globl _modprn_sendBreak
+                             23 	.globl _modprn_int_getch
+                             24 	.globl _chA_intHandler_rx_specialCond
+                             25 	.globl _chA_intHandler_rx_charAvail
+                             26 	.globl _chA_intHandler_statChng
+                             27 	.globl _chB_intHandler_rx_specialCond
+                             28 	.globl _chB_intHandler_rx_charAvail
+                             29 	.globl _chB_intHandler_statChng
+                             30 ;--------------------------------------------------------
+                             31 ; special function registers
+                             32 ;--------------------------------------------------------
+                             33 ;--------------------------------------------------------
+                             34 ; ram data
+                             35 ;--------------------------------------------------------
+                             36 	.area _DATA
+   0000                      37 _ch_buf:
+   0000                      38 	.ds 36
+                             39 ;--------------------------------------------------------
+                             40 ; ram data
+                             41 ;--------------------------------------------------------
+                             42 	.area _INITIALIZED
+   0000                      43 _reg5_status:
+   0000                      44 	.ds 2
+   0002                      45 _reg3_status:
+   0002                      46 	.ds 2
+                             47 ;--------------------------------------------------------
+                             48 ; absolute external ram data
+                             49 ;--------------------------------------------------------
+                             50 	.area _DABS (ABS)
+                             51 ;--------------------------------------------------------
+                             52 ; global & static initialisations
+                             53 ;--------------------------------------------------------
+                             54 	.area _HOME
+                             55 	.area _GSINIT
+                             56 	.area _GSFINAL
+                             57 	.area _GSINIT
+                             58 ;--------------------------------------------------------
+                             59 ; Home
+                             60 ;--------------------------------------------------------
+                             61 	.area _HOME
+                             62 	.area _HOME
+                             63 ;--------------------------------------------------------
+                             64 ; code
+                             65 ;--------------------------------------------------------
+                             66 	.area _CODE
+                             67 ;../../src/hw/modprn02/hw_modprn02.c:61: void setup_modprn(MPRN_Channel chan, MPRN_BaudRate brate, MPRN_BPC bpc, MPRN_Stop sbit, MPRN_Parity parity) {
+                             68 ;	---------------------------------
+                             69 ; Function setup_modprn
+                             70 ; ---------------------------------
+   0000                      71 _setup_modprn::
+   0000 DD E5         [15]   72 	push	ix
+   0002 DD 21 00 00   [14]   73 	ld	ix,#0
+   0006 DD 39         [15]   74 	add	ix,sp
+                             75 ;../../src/hw/modprn02/hw_modprn02.c:62: ctc_init(chan, brate);
+   0008 DD 66 05      [19]   76 	ld	h,5 (ix)
+   000B DD 6E 04      [19]   77 	ld	l,4 (ix)
+   000E E5            [11]   78 	push	hl
+   000F CDr3Br00      [17]   79 	call	_ctc_init
+   0012 F1            [10]   80 	pop	af
+                             81 ;../../src/hw/modprn02/hw_modprn02.c:63: sio_init(chan, bpc, sbit, parity);
+   0013 DD 66 08      [19]   82 	ld	h,8 (ix)
+   0016 DD 6E 07      [19]   83 	ld	l,7 (ix)
+   0019 E5            [11]   84 	push	hl
+   001A DD 66 06      [19]   85 	ld	h,6 (ix)
+   001D DD 6E 04      [19]   86 	ld	l,4 (ix)
+   0020 E5            [11]   87 	push	hl
+   0021 CDr5Dr00      [17]   88 	call	_sio_init
+   0024 F1            [10]   89 	pop	af
+   0025 F1            [10]   90 	pop	af
+                             91 ;../../src/hw/modprn02/hw_modprn02.c:65: ch_buf[chan].avail = 0;
+   0026 01r00r00      [10]   92 	ld	bc,#_ch_buf+0
+   0029 DD 5E 04      [19]   93 	ld	e,4 (ix)
+   002C 16 00         [ 7]   94 	ld	d,#0x00
+   002E 6B            [ 4]   95 	ld	l, e
+   002F 62            [ 4]   96 	ld	h, d
+   0030 29            [11]   97 	add	hl, hl
+   0031 29            [11]   98 	add	hl, hl
+   0032 29            [11]   99 	add	hl, hl
+   0033 19            [11]  100 	add	hl, de
+   0034 29            [11]  101 	add	hl, hl
+   0035 09            [11]  102 	add	hl,bc
+   0036 36 00         [10]  103 	ld	(hl),#0x00
+   0038 DD E1         [14]  104 	pop	ix
+   003A C9            [10]  105 	ret
+                            106 ;../../src/hw/modprn02/hw_modprn02.c:68: void ctc_init(MPRN_Channel chan, MPRN_BaudRate brate) {
+                            107 ;	---------------------------------
+                            108 ; Function ctc_init
+                            109 ; ---------------------------------
+   003B                     110 _ctc_init::
+                            111 ;../../src/hw/modprn02/hw_modprn02.c:71: hw_outp(MODPRN02_CTC_CHAN_0 + chan, ctc_command); // Send the channel command
+   003B 21 02 00      [10]  112 	ld	hl, #2+0
+   003E 39            [11]  113 	add	hl, sp
+   003F 7E            [ 7]  114 	ld	a, (hl)
+   0040 C6 4C         [ 7]  115 	add	a, #0x4c
+   0042 47            [ 4]  116 	ld	b,a
+   0043 C5            [11]  117 	push	bc
+   0044 3E 57         [ 7]  118 	ld	a,#0x57
+   0046 F5            [11]  119 	push	af
+   0047 33            [ 6]  120 	inc	sp
+   0048 C5            [11]  121 	push	bc
+   0049 33            [ 6]  122 	inc	sp
+   004A CDr00r00      [17]  123 	call	_hw_outp
+   004D F1            [10]  124 	pop	af
+   004E C1            [10]  125 	pop	bc
+                            126 ;../../src/hw/modprn02/hw_modprn02.c:72: hw_outp(MODPRN02_CTC_CHAN_0 + chan, (uint8_t)brate); // Send the time constant. This will divide our input clock.
+   004F 21 03 00      [10]  127 	ld	hl, #3+0
+   0052 39            [11]  128 	add	hl, sp
+   0053 7E            [ 7]  129 	ld	a, (hl)
+   0054 F5            [11]  130 	push	af
+   0055 33            [ 6]  131 	inc	sp
+   0056 C5            [11]  132 	push	bc
+   0057 33            [ 6]  133 	inc	sp
+   0058 CDr00r00      [17]  134 	call	_hw_outp
+   005B F1            [10]  135 	pop	af
+   005C C9            [10]  136 	ret
+                            137 ;../../src/hw/modprn02/hw_modprn02.c:75: void sio_init(MPRN_Channel chan, MPRN_BPC bpc, MPRN_Stop sbit, MPRN_Parity parity) {
+                            138 ;	---------------------------------
+                            139 ; Function sio_init
+                            140 ; ---------------------------------
+   005D                     141 _sio_init::
+   005D DD E5         [15]  142 	push	ix
+   005F DD 21 00 00   [14]  143 	ld	ix,#0
+   0063 DD 39         [15]  144 	add	ix,sp
+                            145 ;../../src/hw/modprn02/hw_modprn02.c:77: hw_outp(MODPRN02_SIO_A_CTRL + chan, SIO_BASIC_CMD_RST_CHN); // Reset the channel
+   0065 DD 7E 04      [19]  146 	ld	a,4 (ix)
+   0068 C6 4A         [ 7]  147 	add	a, #0x4a
+   006A 47            [ 4]  148 	ld	b,a
+   006B C5            [11]  149 	push	bc
+   006C 3E 18         [ 7]  150 	ld	a,#0x18
+   006E F5            [11]  151 	push	af
+   006F 33            [ 6]  152 	inc	sp
+   0070 C5            [11]  153 	push	bc
+   0071 33            [ 6]  154 	inc	sp
+   0072 CDr00r00      [17]  155 	call	_hw_outp
+   0075 F1            [10]  156 	pop	af
+   0076 C1            [10]  157 	pop	bc
+                            158 ;../../src/hw/modprn02/hw_modprn02.c:84: __endasm;
+   0077 00            [ 4]  159 	nop
+   0078 00            [ 4]  160 	nop
+   0079 00            [ 4]  161 	nop
+                            162 ;../../src/hw/modprn02/hw_modprn02.c:87: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x04); // Select register 4
+   007A C5            [11]  163 	push	bc
+   007B 3E 04         [ 7]  164 	ld	a,#0x04
+   007D F5            [11]  165 	push	af
+   007E 33            [ 6]  166 	inc	sp
+   007F C5            [11]  167 	push	bc
+   0080 33            [ 6]  168 	inc	sp
+   0081 CDr00r00      [17]  169 	call	_hw_outp
+   0084 F1            [10]  170 	pop	af
+   0085 C1            [10]  171 	pop	bc
+                            172 ;../../src/hw/modprn02/hw_modprn02.c:88: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x40 |sbit | parity); // Set parity, stop bits and x16 clock mode
+   0086 DD 7E 06      [19]  173 	ld	a,6 (ix)
+   0089 CB F7         [ 8]  174 	set	6, a
+   008B DD B6 07      [19]  175 	or	a, 7 (ix)
+   008E 57            [ 4]  176 	ld	d,a
+   008F C5            [11]  177 	push	bc
+   0090 D5            [11]  178 	push	de
+   0091 33            [ 6]  179 	inc	sp
+   0092 C5            [11]  180 	push	bc
+   0093 33            [ 6]  181 	inc	sp
+   0094 CDr00r00      [17]  182 	call	_hw_outp
+   0097 F1            [10]  183 	pop	af
+   0098 C1            [10]  184 	pop	bc
+                            185 ;../../src/hw/modprn02/hw_modprn02.c:91: reg5_status[chan] = 0x08 | (bpc >> 1); // Enable Tx, set Tx bits, RTS off
+   0099 DD 7E 04      [19]  186 	ld	a,4 (ix)
+   009C C6r00         [ 7]  187 	add	a, #<(_reg5_status)
+   009E 5F            [ 4]  188 	ld	e,a
+   009F 3E 00         [ 7]  189 	ld	a,#0x00
+   00A1 CEs00         [ 7]  190 	adc	a, #>(_reg5_status)
+   00A3 57            [ 4]  191 	ld	d,a
+   00A4 DD 7E 05      [19]  192 	ld	a,5 (ix)
+   00A7 CB 3F         [ 8]  193 	srl	a
+   00A9 CB DF         [ 8]  194 	set	3, a
+   00AB 12            [ 7]  195 	ld	(de),a
+                            196 ;../../src/hw/modprn02/hw_modprn02.c:92: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x05); // Select register 5
+   00AC C5            [11]  197 	push	bc
+   00AD D5            [11]  198 	push	de
+   00AE 3E 05         [ 7]  199 	ld	a,#0x05
+   00B0 F5            [11]  200 	push	af
+   00B1 33            [ 6]  201 	inc	sp
+   00B2 C5            [11]  202 	push	bc
+   00B3 33            [ 6]  203 	inc	sp
+   00B4 CDr00r00      [17]  204 	call	_hw_outp
+   00B7 F1            [10]  205 	pop	af
+   00B8 D1            [10]  206 	pop	de
+   00B9 C1            [10]  207 	pop	bc
+                            208 ;../../src/hw/modprn02/hw_modprn02.c:93: hw_outp(MODPRN02_SIO_A_CTRL + chan, reg5_status[chan]);
+   00BA 1A            [ 7]  209 	ld	a,(de)
+   00BB 67            [ 4]  210 	ld	h,a
+   00BC C5            [11]  211 	push	bc
+   00BD D5            [11]  212 	push	de
+   00BE E5            [11]  213 	push	hl
+   00BF 33            [ 6]  214 	inc	sp
+   00C0 C5            [11]  215 	push	bc
+   00C1 33            [ 6]  216 	inc	sp
+   00C2 CDr00r00      [17]  217 	call	_hw_outp
+   00C5 F1            [10]  218 	pop	af
+   00C6 D1            [10]  219 	pop	de
+   00C7 C1            [10]  220 	pop	bc
+                            221 ;../../src/hw/modprn02/hw_modprn02.c:96: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x01); // Select register 1
+   00C8 C5            [11]  222 	push	bc
+   00C9 D5            [11]  223 	push	de
+   00CA 3E 01         [ 7]  224 	ld	a,#0x01
+   00CC F5            [11]  225 	push	af
+   00CD 33            [ 6]  226 	inc	sp
+   00CE C5            [11]  227 	push	bc
+   00CF 33            [ 6]  228 	inc	sp
+   00D0 CDr00r00      [17]  229 	call	_hw_outp
+   00D3 F1            [10]  230 	pop	af
+   00D4 D1            [10]  231 	pop	de
+   00D5 C1            [10]  232 	pop	bc
+                            233 ;../../src/hw/modprn02/hw_modprn02.c:97: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x00); // Disable interrupts
+   00D6 C5            [11]  234 	push	bc
+   00D7 D5            [11]  235 	push	de
+   00D8 AF            [ 4]  236 	xor	a, a
+   00D9 F5            [11]  237 	push	af
+   00DA 33            [ 6]  238 	inc	sp
+   00DB C5            [11]  239 	push	bc
+   00DC 33            [ 6]  240 	inc	sp
+   00DD CDr00r00      [17]  241 	call	_hw_outp
+   00E0 F1            [10]  242 	pop	af
+   00E1 D1            [10]  243 	pop	de
+   00E2 C1            [10]  244 	pop	bc
+                            245 ;../../src/hw/modprn02/hw_modprn02.c:100: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x03); // Select register 3
+   00E3 C5            [11]  246 	push	bc
+   00E4 D5            [11]  247 	push	de
+   00E5 3E 03         [ 7]  248 	ld	a,#0x03
+   00E7 F5            [11]  249 	push	af
+   00E8 33            [ 6]  250 	inc	sp
+   00E9 C5            [11]  251 	push	bc
+   00EA 33            [ 6]  252 	inc	sp
+   00EB CDr00r00      [17]  253 	call	_hw_outp
+   00EE F1            [10]  254 	pop	af
+   00EF D1            [10]  255 	pop	de
+   00F0 C1            [10]  256 	pop	bc
+                            257 ;../../src/hw/modprn02/hw_modprn02.c:101: hw_outp(MODPRN02_SIO_A_CTRL + chan, (0x01|bpc)); // Set rx bits and enable RX
+   00F1 DD 7E 05      [19]  258 	ld	a,5 (ix)
+   00F4 CB C7         [ 8]  259 	set	0, a
+   00F6 67            [ 4]  260 	ld	h,a
+   00F7 C5            [11]  261 	push	bc
+   00F8 D5            [11]  262 	push	de
+   00F9 E5            [11]  263 	push	hl
+   00FA 33            [ 6]  264 	inc	sp
+   00FB C5            [11]  265 	push	bc
+   00FC 33            [ 6]  266 	inc	sp
+   00FD CDr00r00      [17]  267 	call	_hw_outp
+   0100 F1            [10]  268 	pop	af
+   0101 D1            [10]  269 	pop	de
+   0102 C1            [10]  270 	pop	bc
+                            271 ;../../src/hw/modprn02/hw_modprn02.c:104: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x05); // Select register 5
+   0103 C5            [11]  272 	push	bc
+   0104 D5            [11]  273 	push	de
+   0105 3E 05         [ 7]  274 	ld	a,#0x05
+   0107 F5            [11]  275 	push	af
+   0108 33            [ 6]  276 	inc	sp
+   0109 C5            [11]  277 	push	bc
+   010A 33            [ 6]  278 	inc	sp
+   010B CDr00r00      [17]  279 	call	_hw_outp
+   010E F1            [10]  280 	pop	af
+   010F D1            [10]  281 	pop	de
+   0110 C1            [10]  282 	pop	bc
+                            283 ;../../src/hw/modprn02/hw_modprn02.c:105: hw_outp(MODPRN02_SIO_A_CTRL + chan, reg5_status[chan] | SIO_REG5_RTS_FLAG);
+   0111 1A            [ 7]  284 	ld	a,(de)
+   0112 CB CF         [ 8]  285 	set	1, a
+   0114 57            [ 4]  286 	ld	d,a
+   0115 D5            [11]  287 	push	de
+   0116 33            [ 6]  288 	inc	sp
+   0117 C5            [11]  289 	push	bc
+   0118 33            [ 6]  290 	inc	sp
+   0119 CDr00r00      [17]  291 	call	_hw_outp
+   011C F1            [10]  292 	pop	af
+   011D DD E1         [14]  293 	pop	ix
+   011F C9            [10]  294 	ret
+                            295 ;../../src/hw/modprn02/hw_modprn02.c:108: void modprn_setupInterrupts(uint8_t ivect_start) {
+                            296 ;	---------------------------------
+                            297 ; Function modprn_setupInterrupts
+                            298 ; ---------------------------------
+   0120                     299 _modprn_setupInterrupts::
+   0120 DD E5         [15]  300 	push	ix
+   0122 DD 21 00 00   [14]  301 	ld	ix,#0
+   0126 DD 39         [15]  302 	add	ix,sp
+                            303 ;../../src/hw/modprn02/hw_modprn02.c:109: ivect_start &= SIO_VECT_LOC_MASK;
+   0128 DD 7E 04      [19]  304 	ld	a,4 (ix)
+   012B E6 F1         [ 7]  305 	and	a, #0xf1
+   012D DD 77 04      [19]  306 	ld	4 (ix),a
+                            307 ;../../src/hw/modprn02/hw_modprn02.c:113: hw_addInterruptHandler(ivect_start | 0x02, (uint16_t)chB_intHandler_statChng);
+   0130 01rF4r04      [10]  308 	ld	bc,#_chB_intHandler_statChng
+   0133 DD 7E 04      [19]  309 	ld	a,4 (ix)
+   0136 CB CF         [ 8]  310 	set	1, a
+   0138 57            [ 4]  311 	ld	d,a
+   0139 C5            [11]  312 	push	bc
+   013A D5            [11]  313 	push	de
+   013B 33            [ 6]  314 	inc	sp
+   013C CDr00r00      [17]  315 	call	_hw_addInterruptHandler
+   013F F1            [10]  316 	pop	af
+   0140 33            [ 6]  317 	inc	sp
+                            318 ;../../src/hw/modprn02/hw_modprn02.c:114: hw_addInterruptHandler(ivect_start | 0x04, (uint16_t)chB_intHandler_rx_charAvail);
+   0141 01r98r04      [10]  319 	ld	bc,#_chB_intHandler_rx_charAvail
+   0144 DD 7E 04      [19]  320 	ld	a,4 (ix)
+   0147 CB D7         [ 8]  321 	set	2, a
+   0149 57            [ 4]  322 	ld	d,a
+   014A C5            [11]  323 	push	bc
+   014B D5            [11]  324 	push	de
+   014C 33            [ 6]  325 	inc	sp
+   014D CDr00r00      [17]  326 	call	_hw_addInterruptHandler
+   0150 F1            [10]  327 	pop	af
+   0151 33            [ 6]  328 	inc	sp
+                            329 ;../../src/hw/modprn02/hw_modprn02.c:115: hw_addInterruptHandler(ivect_start | 0x06, (uint16_t)chB_intHandler_rx_specialCond);
+   0152 01r8Fr04      [10]  330 	ld	bc,#_chB_intHandler_rx_specialCond
+   0155 DD 7E 04      [19]  331 	ld	a,4 (ix)
+   0158 F6 06         [ 7]  332 	or	a, #0x06
+   015A 57            [ 4]  333 	ld	d,a
+   015B C5            [11]  334 	push	bc
+   015C D5            [11]  335 	push	de
+   015D 33            [ 6]  336 	inc	sp
+   015E CDr00r00      [17]  337 	call	_hw_addInterruptHandler
+   0161 F1            [10]  338 	pop	af
+   0162 33            [ 6]  339 	inc	sp
+                            340 ;../../src/hw/modprn02/hw_modprn02.c:119: hw_addInterruptHandler(ivect_start | 0x0A, (uint16_t)chA_intHandler_statChng);
+   0163 01r86r04      [10]  341 	ld	bc,#_chA_intHandler_statChng
+   0166 DD 7E 04      [19]  342 	ld	a,4 (ix)
+   0169 F6 0A         [ 7]  343 	or	a, #0x0a
+   016B 57            [ 4]  344 	ld	d,a
+   016C C5            [11]  345 	push	bc
+   016D D5            [11]  346 	push	de
+   016E 33            [ 6]  347 	inc	sp
+   016F CDr00r00      [17]  348 	call	_hw_addInterruptHandler
+   0172 F1            [10]  349 	pop	af
+   0173 33            [ 6]  350 	inc	sp
+                            351 ;../../src/hw/modprn02/hw_modprn02.c:120: hw_addInterruptHandler(ivect_start | 0x0C, (uint16_t)chA_intHandler_rx_charAvail);
+   0174 01r2Ar04      [10]  352 	ld	bc,#_chA_intHandler_rx_charAvail
+   0177 DD 7E 04      [19]  353 	ld	a,4 (ix)
+   017A F6 0C         [ 7]  354 	or	a, #0x0c
+   017C 57            [ 4]  355 	ld	d,a
+   017D C5            [11]  356 	push	bc
+   017E D5            [11]  357 	push	de
+   017F 33            [ 6]  358 	inc	sp
+   0180 CDr00r00      [17]  359 	call	_hw_addInterruptHandler
+   0183 F1            [10]  360 	pop	af
+   0184 33            [ 6]  361 	inc	sp
+                            362 ;../../src/hw/modprn02/hw_modprn02.c:121: hw_addInterruptHandler(ivect_start | 0x0E, (uint16_t)chA_intHandler_rx_specialCond);
+   0185 01r21r04      [10]  363 	ld	bc,#_chA_intHandler_rx_specialCond
+   0188 DD 7E 04      [19]  364 	ld	a,4 (ix)
+   018B F6 0E         [ 7]  365 	or	a, #0x0e
+   018D 57            [ 4]  366 	ld	d,a
+   018E C5            [11]  367 	push	bc
+   018F D5            [11]  368 	push	de
+   0190 33            [ 6]  369 	inc	sp
+   0191 CDr00r00      [17]  370 	call	_hw_addInterruptHandler
+                            371 ;../../src/hw/modprn02/hw_modprn02.c:123: hw_outp(MODPRN02_SIO_B_CTRL, 0x02); // Select register 2
+   0194 33            [ 6]  372 	inc	sp
+   0195 21 4B 02      [10]  373 	ld	hl,#0x024b
+   0198 E3            [19]  374 	ex	(sp),hl
+   0199 CDr00r00      [17]  375 	call	_hw_outp
+   019C F1            [10]  376 	pop	af
+                            377 ;../../src/hw/modprn02/hw_modprn02.c:124: hw_outp(MODPRN02_SIO_B_CTRL, ivect_start); // Interrupt vector 0
+   019D DD 7E 04      [19]  378 	ld	a,4 (ix)
+   01A0 57            [ 4]  379 	ld	d,a
+   01A1 1E 4B         [ 7]  380 	ld	e,#0x4b
+   01A3 D5            [11]  381 	push	de
+   01A4 CDr00r00      [17]  382 	call	_hw_outp
+                            383 ;../../src/hw/modprn02/hw_modprn02.c:127: hw_outp(MODPRN02_SIO_A_CTRL, 0x01); // Select register 1
+   01A7 21 4A 01      [10]  384 	ld	hl, #0x014a
+   01AA E3            [19]  385 	ex	(sp),hl
+   01AB CDr00r00      [17]  386 	call	_hw_outp
+                            387 ;../../src/hw/modprn02/hw_modprn02.c:128: hw_outp(MODPRN02_SIO_A_CTRL, 0x1C); // Enable interrupts for received chars, TX and status affect vector
+   01AE 21 4A 1C      [10]  388 	ld	hl, #0x1c4a
+   01B1 E3            [19]  389 	ex	(sp),hl
+   01B2 CDr00r00      [17]  390 	call	_hw_outp
+                            391 ;../../src/hw/modprn02/hw_modprn02.c:130: hw_outp(MODPRN02_SIO_B_CTRL, 0x01); // Select register 1
+   01B5 21 4B 01      [10]  392 	ld	hl, #0x014b
+   01B8 E3            [19]  393 	ex	(sp),hl
+   01B9 CDr00r00      [17]  394 	call	_hw_outp
+                            395 ;../../src/hw/modprn02/hw_modprn02.c:131: hw_outp(MODPRN02_SIO_B_CTRL, 0x1C); // Enable interrupts for received chars, TX and status affect vector
+   01BC 21 4B 1C      [10]  396 	ld	hl, #0x1c4b
+   01BF E3            [19]  397 	ex	(sp),hl
+   01C0 CDr00r00      [17]  398 	call	_hw_outp
+   01C3 F1            [10]  399 	pop	af
+   01C4 DD E1         [14]  400 	pop	ix
+   01C6 C9            [10]  401 	ret
+                            402 ;../../src/hw/modprn02/hw_modprn02.c:134: void modprn_outch(MPRN_Channel chan, uint8_t ch) {
+                            403 ;	---------------------------------
+                            404 ; Function modprn_outch
+                            405 ; ---------------------------------
+   01C7                     406 _modprn_outch::
+                            407 ;../../src/hw/modprn02/hw_modprn02.c:137: do {
+   01C7 21 02 00      [10]  408 	ld	hl, #2+0
+   01CA 39            [11]  409 	add	hl, sp
+   01CB 7E            [ 7]  410 	ld	a, (hl)
+   01CC C6 4A         [ 7]  411 	add	a, #0x4a
+   01CE 47            [ 4]  412 	ld	b,a
+   01CF                     413 00102$:
+                            414 ;../../src/hw/modprn02/hw_modprn02.c:138: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x00); // Select register 0
+   01CF C5            [11]  415 	push	bc
+   01D0 AF            [ 4]  416 	xor	a, a
+   01D1 F5            [11]  417 	push	af
+   01D2 33            [ 6]  418 	inc	sp
+   01D3 C5            [11]  419 	push	bc
+   01D4 33            [ 6]  420 	inc	sp
+   01D5 CDr00r00      [17]  421 	call	_hw_outp
+   01D8 F1            [10]  422 	pop	af
+   01D9 C1            [10]  423 	pop	bc
+                            424 ;../../src/hw/modprn02/hw_modprn02.c:139: reg_0 = hw_inp(MODPRN02_SIO_A_CTRL + chan);
+   01DA C5            [11]  425 	push	bc
+   01DB C5            [11]  426 	push	bc
+   01DC 33            [ 6]  427 	inc	sp
+   01DD CDr00r00      [17]  428 	call	_hw_inp
+   01E0 33            [ 6]  429 	inc	sp
+   01E1 C1            [10]  430 	pop	bc
+                            431 ;../../src/hw/modprn02/hw_modprn02.c:140: } while(!(reg_0 & SIO_REG0_TXEMPTY_FLAG) || !(reg_0 & SIO_REG0_CTS_FLAG));
+   01E2 CB 55         [ 8]  432 	bit	2, l
+   01E4 28 E9         [12]  433 	jr	Z,00102$
+   01E6 CB 6D         [ 8]  434 	bit	5, l
+   01E8 28 E5         [12]  435 	jr	Z,00102$
+                            436 ;../../src/hw/modprn02/hw_modprn02.c:142: hw_outp(MODPRN02_SIO_A_DATA + chan, ch);
+   01EA 21 02 00      [10]  437 	ld	hl, #2+0
+   01ED 39            [11]  438 	add	hl, sp
+   01EE 7E            [ 7]  439 	ld	a, (hl)
+   01EF C6 48         [ 7]  440 	add	a, #0x48
+   01F1 47            [ 4]  441 	ld	b,a
+   01F2 21 03 00      [10]  442 	ld	hl, #3+0
+   01F5 39            [11]  443 	add	hl, sp
+   01F6 7E            [ 7]  444 	ld	a, (hl)
+   01F7 F5            [11]  445 	push	af
+   01F8 33            [ 6]  446 	inc	sp
+   01F9 C5            [11]  447 	push	bc
+   01FA 33            [ 6]  448 	inc	sp
+   01FB CDr00r00      [17]  449 	call	_hw_outp
+   01FE F1            [10]  450 	pop	af
+   01FF C9            [10]  451 	ret
+                            452 ;../../src/hw/modprn02/hw_modprn02.c:146: uint8_t modprn_getch(MPRN_Channel chan) {
+                            453 ;	---------------------------------
+                            454 ; Function modprn_getch
+                            455 ; ---------------------------------
+   0200                     456 _modprn_getch::
+                            457 ;../../src/hw/modprn02/hw_modprn02.c:149: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x00); // Select register 0
+   0200 21 02 00      [10]  458 	ld	hl, #2+0
+   0203 39            [11]  459 	add	hl, sp
+   0204 7E            [ 7]  460 	ld	a, (hl)
+   0205 C6 4A         [ 7]  461 	add	a, #0x4a
+   0207 47            [ 4]  462 	ld	b,a
+   0208 C5            [11]  463 	push	bc
+   0209 AF            [ 4]  464 	xor	a, a
+   020A F5            [11]  465 	push	af
+   020B 33            [ 6]  466 	inc	sp
+   020C C5            [11]  467 	push	bc
+   020D 33            [ 6]  468 	inc	sp
+   020E CDr00r00      [17]  469 	call	_hw_outp
+   0211 F1            [10]  470 	pop	af
+   0212 C1            [10]  471 	pop	bc
+                            472 ;../../src/hw/modprn02/hw_modprn02.c:150: reg_0 = hw_inp(MODPRN02_SIO_A_CTRL + chan);
+   0213 C5            [11]  473 	push	bc
+   0214 C5            [11]  474 	push	bc
+   0215 33            [ 6]  475 	inc	sp
+   0216 CDr00r00      [17]  476 	call	_hw_inp
+   0219 33            [ 6]  477 	inc	sp
+   021A C1            [10]  478 	pop	bc
+                            479 ;../../src/hw/modprn02/hw_modprn02.c:152: if (!(reg_0 & SIO_REG0_RXAVAIL_FLAG)) { // If we already have a char waiting, raising the RTS line could cause overrun!
+   021B CB 45         [ 8]  480 	bit	0, l
+   021D 20 5C         [12]  481 	jr	NZ,00105$
+                            482 ;../../src/hw/modprn02/hw_modprn02.c:153: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x05); // Select register 5
+   021F C5            [11]  483 	push	bc
+   0220 3E 05         [ 7]  484 	ld	a,#0x05
+   0222 F5            [11]  485 	push	af
+   0223 33            [ 6]  486 	inc	sp
+   0224 C5            [11]  487 	push	bc
+   0225 33            [ 6]  488 	inc	sp
+   0226 CDr00r00      [17]  489 	call	_hw_outp
+   0229 F1            [10]  490 	pop	af
+   022A C1            [10]  491 	pop	bc
+                            492 ;../../src/hw/modprn02/hw_modprn02.c:154: hw_outp(MODPRN02_SIO_A_CTRL + chan, reg5_status[chan] | SIO_REG5_RTS_FLAG);
+   022B 3Er00         [ 7]  493 	ld	a,#<(_reg5_status)
+   022D 21 02 00      [10]  494 	ld	hl,#2
+   0230 39            [11]  495 	add	hl,sp
+   0231 86            [ 7]  496 	add	a, (hl)
+   0232 5F            [ 4]  497 	ld	e,a
+   0233 3Es00         [ 7]  498 	ld	a,#>(_reg5_status)
+   0235 CE 00         [ 7]  499 	adc	a, #0x00
+   0237 57            [ 4]  500 	ld	d,a
+   0238 1A            [ 7]  501 	ld	a,(de)
+   0239 CB CF         [ 8]  502 	set	1, a
+   023B 67            [ 4]  503 	ld	h,a
+   023C C5            [11]  504 	push	bc
+   023D D5            [11]  505 	push	de
+   023E E5            [11]  506 	push	hl
+   023F 33            [ 6]  507 	inc	sp
+   0240 C5            [11]  508 	push	bc
+   0241 33            [ 6]  509 	inc	sp
+   0242 CDr00r00      [17]  510 	call	_hw_outp
+   0245 F1            [10]  511 	pop	af
+   0246 D1            [10]  512 	pop	de
+   0247 C1            [10]  513 	pop	bc
+                            514 ;../../src/hw/modprn02/hw_modprn02.c:156: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x00); // Select register 0
+   0248 C5            [11]  515 	push	bc
+   0249 D5            [11]  516 	push	de
+   024A AF            [ 4]  517 	xor	a, a
+   024B F5            [11]  518 	push	af
+   024C 33            [ 6]  519 	inc	sp
+   024D C5            [11]  520 	push	bc
+   024E 33            [ 6]  521 	inc	sp
+   024F CDr00r00      [17]  522 	call	_hw_outp
+   0252 F1            [10]  523 	pop	af
+   0253 D1            [10]  524 	pop	de
+   0254 C1            [10]  525 	pop	bc
+                            526 ;../../src/hw/modprn02/hw_modprn02.c:157: do {
+   0255                     527 00101$:
+                            528 ;../../src/hw/modprn02/hw_modprn02.c:158: reg_0 = hw_inp(MODPRN02_SIO_A_CTRL + chan);
+   0255 C5            [11]  529 	push	bc
+   0256 D5            [11]  530 	push	de
+   0257 C5            [11]  531 	push	bc
+   0258 33            [ 6]  532 	inc	sp
+   0259 CDr00r00      [17]  533 	call	_hw_inp
+   025C 33            [ 6]  534 	inc	sp
+   025D D1            [10]  535 	pop	de
+   025E C1            [10]  536 	pop	bc
+                            537 ;../../src/hw/modprn02/hw_modprn02.c:159: } while (!(reg_0 & SIO_REG0_RXAVAIL_FLAG));
+   025F CB 45         [ 8]  538 	bit	0, l
+   0261 28 F2         [12]  539 	jr	Z,00101$
+                            540 ;../../src/hw/modprn02/hw_modprn02.c:161: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x05); // Select register 5
+   0263 C5            [11]  541 	push	bc
+   0264 D5            [11]  542 	push	de
+   0265 3E 05         [ 7]  543 	ld	a,#0x05
+   0267 F5            [11]  544 	push	af
+   0268 33            [ 6]  545 	inc	sp
+   0269 C5            [11]  546 	push	bc
+   026A 33            [ 6]  547 	inc	sp
+   026B CDr00r00      [17]  548 	call	_hw_outp
+   026E F1            [10]  549 	pop	af
+   026F D1            [10]  550 	pop	de
+   0270 C1            [10]  551 	pop	bc
+                            552 ;../../src/hw/modprn02/hw_modprn02.c:162: hw_outp(MODPRN02_SIO_A_CTRL + chan, reg5_status[chan]);
+   0271 1A            [ 7]  553 	ld	a,(de)
+   0272 57            [ 4]  554 	ld	d,a
+   0273 D5            [11]  555 	push	de
+   0274 33            [ 6]  556 	inc	sp
+   0275 C5            [11]  557 	push	bc
+   0276 33            [ 6]  558 	inc	sp
+   0277 CDr00r00      [17]  559 	call	_hw_outp
+   027A F1            [10]  560 	pop	af
+   027B                     561 00105$:
+                            562 ;../../src/hw/modprn02/hw_modprn02.c:165: return hw_inp(MODPRN02_SIO_A_DATA + chan);
+   027B 21 02 00      [10]  563 	ld	hl, #2+0
+   027E 39            [11]  564 	add	hl, sp
+   027F 7E            [ 7]  565 	ld	a, (hl)
+   0280 C6 48         [ 7]  566 	add	a, #0x48
+   0282 47            [ 4]  567 	ld	b,a
+   0283 C5            [11]  568 	push	bc
+   0284 33            [ 6]  569 	inc	sp
+   0285 CDr00r00      [17]  570 	call	_hw_inp
+   0288 33            [ 6]  571 	inc	sp
+   0289 C9            [10]  572 	ret
+                            573 ;../../src/hw/modprn02/hw_modprn02.c:168: uint8_t modprn_getchBuf(MPRN_Channel chan, uint8_t *buf, uint8_t bufSize) {
+                            574 ;	---------------------------------
+                            575 ; Function modprn_getchBuf
+                            576 ; ---------------------------------
+   028A                     577 _modprn_getchBuf::
+   028A DD E5         [15]  578 	push	ix
+   028C DD 21 00 00   [14]  579 	ld	ix,#0
+   0290 DD 39         [15]  580 	add	ix,sp
+                            581 ;../../src/hw/modprn02/hw_modprn02.c:172: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x00); // Select register 0
+   0292 DD 7E 04      [19]  582 	ld	a,4 (ix)
+   0295 C6 4A         [ 7]  583 	add	a, #0x4a
+   0297 47            [ 4]  584 	ld	b,a
+   0298 C5            [11]  585 	push	bc
+   0299 AF            [ 4]  586 	xor	a, a
+   029A F5            [11]  587 	push	af
+   029B 33            [ 6]  588 	inc	sp
+   029C C5            [11]  589 	push	bc
+   029D 33            [ 6]  590 	inc	sp
+   029E CDr00r00      [17]  591 	call	_hw_outp
+   02A1 F1            [10]  592 	pop	af
+   02A2 C1            [10]  593 	pop	bc
+                            594 ;../../src/hw/modprn02/hw_modprn02.c:173: reg_0 = hw_inp(MODPRN02_SIO_A_CTRL + chan);
+   02A3 C5            [11]  595 	push	bc
+   02A4 C5            [11]  596 	push	bc
+   02A5 33            [ 6]  597 	inc	sp
+   02A6 CDr00r00      [17]  598 	call	_hw_inp
+   02A9 33            [ 6]  599 	inc	sp
+   02AA C1            [10]  600 	pop	bc
+                            601 ;../../src/hw/modprn02/hw_modprn02.c:175: if (!(reg_0 & SIO_REG0_RXAVAIL_FLAG)) { // If we already have a char waiting, raising the RTS line could cause overrun!
+   02AB CB 45         [ 8]  602 	bit	0, l
+   02AD 20 5C         [12]  603 	jr	NZ,00105$
+                            604 ;../../src/hw/modprn02/hw_modprn02.c:176: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x05); // Select register 5
+   02AF C5            [11]  605 	push	bc
+   02B0 3E 05         [ 7]  606 	ld	a,#0x05
+   02B2 F5            [11]  607 	push	af
+   02B3 33            [ 6]  608 	inc	sp
+   02B4 C5            [11]  609 	push	bc
+   02B5 33            [ 6]  610 	inc	sp
+   02B6 CDr00r00      [17]  611 	call	_hw_outp
+   02B9 F1            [10]  612 	pop	af
+   02BA C1            [10]  613 	pop	bc
+                            614 ;../../src/hw/modprn02/hw_modprn02.c:177: hw_outp(MODPRN02_SIO_A_CTRL + chan, reg5_status[chan] | SIO_REG5_RTS_FLAG);
+   02BB DD 7E 04      [19]  615 	ld	a,4 (ix)
+   02BE C6r00         [ 7]  616 	add	a, #<(_reg5_status)
+   02C0 5F            [ 4]  617 	ld	e,a
+   02C1 3E 00         [ 7]  618 	ld	a,#0x00
+   02C3 CEs00         [ 7]  619 	adc	a, #>(_reg5_status)
+   02C5 57            [ 4]  620 	ld	d,a
+   02C6 1A            [ 7]  621 	ld	a,(de)
+   02C7 CB CF         [ 8]  622 	set	1, a
+   02C9 67            [ 4]  623 	ld	h,a
+   02CA C5            [11]  624 	push	bc
+   02CB D5            [11]  625 	push	de
+   02CC E5            [11]  626 	push	hl
+   02CD 33            [ 6]  627 	inc	sp
+   02CE C5            [11]  628 	push	bc
+   02CF 33            [ 6]  629 	inc	sp
+   02D0 CDr00r00      [17]  630 	call	_hw_outp
+   02D3 F1            [10]  631 	pop	af
+   02D4 D1            [10]  632 	pop	de
+   02D5 C1            [10]  633 	pop	bc
+                            634 ;../../src/hw/modprn02/hw_modprn02.c:179: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x00); // Select register 0
+   02D6 C5            [11]  635 	push	bc
+   02D7 D5            [11]  636 	push	de
+   02D8 AF            [ 4]  637 	xor	a, a
+   02D9 F5            [11]  638 	push	af
+   02DA 33            [ 6]  639 	inc	sp
+   02DB C5            [11]  640 	push	bc
+   02DC 33            [ 6]  641 	inc	sp
+   02DD CDr00r00      [17]  642 	call	_hw_outp
+   02E0 F1            [10]  643 	pop	af
+   02E1 D1            [10]  644 	pop	de
+   02E2 C1            [10]  645 	pop	bc
+                            646 ;../../src/hw/modprn02/hw_modprn02.c:180: do {
+   02E3                     647 00101$:
+                            648 ;../../src/hw/modprn02/hw_modprn02.c:181: reg_0 = hw_inp(MODPRN02_SIO_A_CTRL + chan);
+   02E3 C5            [11]  649 	push	bc
+   02E4 D5            [11]  650 	push	de
+   02E5 C5            [11]  651 	push	bc
+   02E6 33            [ 6]  652 	inc	sp
+   02E7 CDr00r00      [17]  653 	call	_hw_inp
+   02EA 33            [ 6]  654 	inc	sp
+   02EB D1            [10]  655 	pop	de
+   02EC C1            [10]  656 	pop	bc
+                            657 ;../../src/hw/modprn02/hw_modprn02.c:182: } while (!(reg_0 & SIO_REG0_RXAVAIL_FLAG));
+   02ED CB 45         [ 8]  658 	bit	0, l
+   02EF 28 F2         [12]  659 	jr	Z,00101$
+                            660 ;../../src/hw/modprn02/hw_modprn02.c:184: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x05); // Select register 5
+   02F1 C5            [11]  661 	push	bc
+   02F2 D5            [11]  662 	push	de
+   02F3 3E 05         [ 7]  663 	ld	a,#0x05
+   02F5 F5            [11]  664 	push	af
+   02F6 33            [ 6]  665 	inc	sp
+   02F7 C5            [11]  666 	push	bc
+   02F8 33            [ 6]  667 	inc	sp
+   02F9 CDr00r00      [17]  668 	call	_hw_outp
+   02FC F1            [10]  669 	pop	af
+   02FD D1            [10]  670 	pop	de
+   02FE C1            [10]  671 	pop	bc
+                            672 ;../../src/hw/modprn02/hw_modprn02.c:185: hw_outp(MODPRN02_SIO_A_CTRL + chan, reg5_status[chan]);
+   02FF 1A            [ 7]  673 	ld	a,(de)
+   0300 57            [ 4]  674 	ld	d,a
+   0301 C5            [11]  675 	push	bc
+   0302 D5            [11]  676 	push	de
+   0303 33            [ 6]  677 	inc	sp
+   0304 C5            [11]  678 	push	bc
+   0305 33            [ 6]  679 	inc	sp
+   0306 CDr00r00      [17]  680 	call	_hw_outp
+   0309 F1            [10]  681 	pop	af
+   030A C1            [10]  682 	pop	bc
+   030B                     683 00105$:
+                            684 ;../../src/hw/modprn02/hw_modprn02.c:188: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x00); // Select register 0	
+   030B C5            [11]  685 	push	bc
+   030C AF            [ 4]  686 	xor	a, a
+   030D F5            [11]  687 	push	af
+   030E 33            [ 6]  688 	inc	sp
+   030F C5            [11]  689 	push	bc
+   0310 33            [ 6]  690 	inc	sp
+   0311 CDr00r00      [17]  691 	call	_hw_outp
+   0314 F1            [10]  692 	pop	af
+   0315 C1            [10]  693 	pop	bc
+                            694 ;../../src/hw/modprn02/hw_modprn02.c:189: do {
+   0316 DD 7E 04      [19]  695 	ld	a,4 (ix)
+   0319 C6 48         [ 7]  696 	add	a, #0x48
+   031B 4F            [ 4]  697 	ld	c,a
+   031C 1E 00         [ 7]  698 	ld	e,#0x00
+   031E                     699 00107$:
+                            700 ;../../src/hw/modprn02/hw_modprn02.c:190: buf[buf_used] = hw_inp(MODPRN02_SIO_A_DATA + chan);
+   031E DD 6E 05      [19]  701 	ld	l,5 (ix)
+   0321 DD 66 06      [19]  702 	ld	h,6 (ix)
+   0324 16 00         [ 7]  703 	ld	d,#0x00
+   0326 19            [11]  704 	add	hl, de
+   0327 E5            [11]  705 	push	hl
+   0328 C5            [11]  706 	push	bc
+   0329 D5            [11]  707 	push	de
+   032A 79            [ 4]  708 	ld	a,c
+   032B F5            [11]  709 	push	af
+   032C 33            [ 6]  710 	inc	sp
+   032D CDr00r00      [17]  711 	call	_hw_inp
+   0330 33            [ 6]  712 	inc	sp
+   0331 7D            [ 4]  713 	ld	a,l
+   0332 D1            [10]  714 	pop	de
+   0333 C1            [10]  715 	pop	bc
+   0334 E1            [10]  716 	pop	hl
+   0335 77            [ 7]  717 	ld	(hl),a
+                            718 ;../../src/hw/modprn02/hw_modprn02.c:191: buf_used++;
+   0336 1C            [ 4]  719 	inc	e
+                            720 ;../../src/hw/modprn02/hw_modprn02.c:193: reg_0 = hw_inp(MODPRN02_SIO_A_CTRL + chan);
+   0337 C5            [11]  721 	push	bc
+   0338 D5            [11]  722 	push	de
+   0339 C5            [11]  723 	push	bc
+   033A 33            [ 6]  724 	inc	sp
+   033B CDr00r00      [17]  725 	call	_hw_inp
+   033E 33            [ 6]  726 	inc	sp
+   033F D1            [10]  727 	pop	de
+   0340 C1            [10]  728 	pop	bc
+                            729 ;../../src/hw/modprn02/hw_modprn02.c:194: } while ((reg_0 & SIO_REG0_RXAVAIL_FLAG) && (buf_used < bufSize));
+   0341 CB 45         [ 8]  730 	bit	0, l
+   0343 28 06         [12]  731 	jr	Z,00109$
+   0345 7B            [ 4]  732 	ld	a,e
+   0346 DD 96 07      [19]  733 	sub	a, 7 (ix)
+   0349 38 D3         [12]  734 	jr	C,00107$
+   034B                     735 00109$:
+                            736 ;../../src/hw/modprn02/hw_modprn02.c:196: return buf_used;
+   034B 6B            [ 4]  737 	ld	l,e
+   034C DD E1         [14]  738 	pop	ix
+   034E C9            [10]  739 	ret
+                            740 ;../../src/hw/modprn02/hw_modprn02.c:199: uint8_t modprn_getBreakStatus(MPRN_Channel chan) {
+                            741 ;	---------------------------------
+                            742 ; Function modprn_getBreakStatus
+                            743 ; ---------------------------------
+   034F                     744 _modprn_getBreakStatus::
+                            745 ;../../src/hw/modprn02/hw_modprn02.c:200: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x00); // Select register 0
+   034F 21 02 00      [10]  746 	ld	hl, #2+0
+   0352 39            [11]  747 	add	hl, sp
+   0353 7E            [ 7]  748 	ld	a, (hl)
+   0354 C6 4A         [ 7]  749 	add	a, #0x4a
+   0356 47            [ 4]  750 	ld	b,a
+   0357 C5            [11]  751 	push	bc
+   0358 AF            [ 4]  752 	xor	a, a
+   0359 F5            [11]  753 	push	af
+   035A 33            [ 6]  754 	inc	sp
+   035B C5            [11]  755 	push	bc
+   035C 33            [ 6]  756 	inc	sp
+   035D CDr00r00      [17]  757 	call	_hw_outp
+   0360 F1            [10]  758 	pop	af
+   0361 33            [ 6]  759 	inc	sp
+   0362 CDr00r00      [17]  760 	call	_hw_inp
+   0365 33            [ 6]  761 	inc	sp
+   0366 7D            [ 4]  762 	ld	a,l
+   0367 E6 80         [ 7]  763 	and	a, #0x80
+   0369 6F            [ 4]  764 	ld	l,a
+   036A C9            [10]  765 	ret
+                            766 ;../../src/hw/modprn02/hw_modprn02.c:204: void modprn_sendBreak(MPRN_Channel chan) {
+                            767 ;	---------------------------------
+                            768 ; Function modprn_sendBreak
+                            769 ; ---------------------------------
+   036B                     770 _modprn_sendBreak::
+                            771 ;../../src/hw/modprn02/hw_modprn02.c:205: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x05); // Select register 5
+   036B 21 02 00      [10]  772 	ld	hl, #2+0
+   036E 39            [11]  773 	add	hl, sp
+   036F 7E            [ 7]  774 	ld	a, (hl)
+   0370 C6 4A         [ 7]  775 	add	a, #0x4a
+   0372 47            [ 4]  776 	ld	b,a
+   0373 C5            [11]  777 	push	bc
+   0374 3E 05         [ 7]  778 	ld	a,#0x05
+   0376 F5            [11]  779 	push	af
+   0377 33            [ 6]  780 	inc	sp
+   0378 C5            [11]  781 	push	bc
+   0379 33            [ 6]  782 	inc	sp
+   037A CDr00r00      [17]  783 	call	_hw_outp
+   037D F1            [10]  784 	pop	af
+   037E C1            [10]  785 	pop	bc
+                            786 ;../../src/hw/modprn02/hw_modprn02.c:206: hw_outp(MODPRN02_SIO_A_CTRL + chan, reg5_status[chan] | SIO_REG5_BREAK_FLAG); // Send the break signal
+   037F 3Er00         [ 7]  787 	ld	a,#<(_reg5_status)
+   0381 21 02 00      [10]  788 	ld	hl,#2
+   0384 39            [11]  789 	add	hl,sp
+   0385 86            [ 7]  790 	add	a, (hl)
+   0386 5F            [ 4]  791 	ld	e,a
+   0387 3Es00         [ 7]  792 	ld	a,#>(_reg5_status)
+   0389 CE 00         [ 7]  793 	adc	a, #0x00
+   038B 57            [ 4]  794 	ld	d,a
+   038C 1A            [ 7]  795 	ld	a,(de)
+   038D CB E7         [ 8]  796 	set	4, a
+   038F 67            [ 4]  797 	ld	h,a
+   0390 C5            [11]  798 	push	bc
+   0391 D5            [11]  799 	push	de
+   0392 E5            [11]  800 	push	hl
+   0393 33            [ 6]  801 	inc	sp
+   0394 C5            [11]  802 	push	bc
+   0395 33            [ 6]  803 	inc	sp
+   0396 CDr00r00      [17]  804 	call	_hw_outp
+   0399 F1            [10]  805 	pop	af
+   039A D1            [10]  806 	pop	de
+   039B C1            [10]  807 	pop	bc
+                            808 ;../../src/hw/modprn02/hw_modprn02.c:210: __endasm;
+   039C 00            [ 4]  809 	nop
+                            810 ;../../src/hw/modprn02/hw_modprn02.c:212: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x05); // Select register 5
+   039D C5            [11]  811 	push	bc
+   039E D5            [11]  812 	push	de
+   039F 3E 05         [ 7]  813 	ld	a,#0x05
+   03A1 F5            [11]  814 	push	af
+   03A2 33            [ 6]  815 	inc	sp
+   03A3 C5            [11]  816 	push	bc
+   03A4 33            [ 6]  817 	inc	sp
+   03A5 CDr00r00      [17]  818 	call	_hw_outp
+   03A8 F1            [10]  819 	pop	af
+   03A9 D1            [10]  820 	pop	de
+   03AA C1            [10]  821 	pop	bc
+                            822 ;../../src/hw/modprn02/hw_modprn02.c:213: hw_outp(MODPRN02_SIO_A_CTRL + chan, reg5_status[chan]); // Disable break signal
+   03AB 1A            [ 7]  823 	ld	a,(de)
+   03AC 57            [ 4]  824 	ld	d,a
+   03AD D5            [11]  825 	push	de
+   03AE 33            [ 6]  826 	inc	sp
+   03AF C5            [11]  827 	push	bc
+   03B0 33            [ 6]  828 	inc	sp
+   03B1 CDr00r00      [17]  829 	call	_hw_outp
+   03B4 F1            [10]  830 	pop	af
+   03B5 C9            [10]  831 	ret
+                            832 ;../../src/hw/modprn02/hw_modprn02.c:216: uint8_t modprn_int_getch(MPRN_Channel chan) {
+                            833 ;	---------------------------------
+                            834 ; Function modprn_int_getch
+                            835 ; ---------------------------------
+   03B6                     836 _modprn_int_getch::
+   03B6 DD E5         [15]  837 	push	ix
+   03B8 DD 21 00 00   [14]  838 	ld	ix,#0
+   03BC DD 39         [15]  839 	add	ix,sp
+   03BE 3B            [ 6]  840 	dec	sp
+                            841 ;../../src/hw/modprn02/hw_modprn02.c:219: while(!ch_buf[chan].avail);
+   03BF 01r00r00      [10]  842 	ld	bc,#_ch_buf+0
+   03C2 DD 5E 04      [19]  843 	ld	e,4 (ix)
+   03C5 16 00         [ 7]  844 	ld	d,#0x00
+   03C7 6B            [ 4]  845 	ld	l, e
+   03C8 62            [ 4]  846 	ld	h, d
+   03C9 29            [11]  847 	add	hl, hl
+   03CA 29            [11]  848 	add	hl, hl
+   03CB 29            [11]  849 	add	hl, hl
+   03CC 19            [11]  850 	add	hl, de
+   03CD 29            [11]  851 	add	hl, hl
+   03CE 09            [11]  852 	add	hl,bc
+   03CF 4D            [ 4]  853 	ld	c,l
+   03D0 44            [ 4]  854 	ld	b,h
+   03D1                     855 00101$:
+   03D1 7E            [ 7]  856 	ld	a,(hl)
+   03D2 B7            [ 4]  857 	or	a, a
+   03D3 28 FC         [12]  858 	jr	Z,00101$
+                            859 ;../../src/hw/modprn02/hw_modprn02.c:221: ch_buf[chan].avail--;
+   03D5 5E            [ 7]  860 	ld	e,(hl)
+   03D6 1D            [ 4]  861 	dec	e
+   03D7 73            [ 7]  862 	ld	(hl),e
+                            863 ;../../src/hw/modprn02/hw_modprn02.c:222: chbuf = ch_buf[chan].buf[ch_buf[chan].idx];
+   03D8 59            [ 4]  864 	ld	e, c
+   03D9 50            [ 4]  865 	ld	d, b
+   03DA 13            [ 6]  866 	inc	de
+   03DB FD 21 11 00   [14]  867 	ld	iy,#0x0011
+   03DF FD 09         [15]  868 	add	iy, bc
+   03E1 FD 6E 00      [19]  869 	ld	l, 0 (iy)
+   03E4 26 00         [ 7]  870 	ld	h,#0x00
+   03E6 19            [11]  871 	add	hl,de
+   03E7 7E            [ 7]  872 	ld	a,(hl)
+   03E8 DD 77 FF      [19]  873 	ld	-1 (ix),a
+                            874 ;../../src/hw/modprn02/hw_modprn02.c:223: ch_buf[chan].idx++;
+   03EB FD 34 00      [23]  875 	inc	0 (iy)
+                            876 ;../../src/hw/modprn02/hw_modprn02.c:225: if (!ch_buf[chan].avail) {
+   03EE 0A            [ 7]  877 	ld	a,(bc)
+   03EF B7            [ 4]  878 	or	a, a
+   03F0 20 28         [12]  879 	jr	NZ,00105$
+                            880 ;../../src/hw/modprn02/hw_modprn02.c:226: hw_outp(MODPRN02_SIO_A_CTRL + chan, 0x05); // Select register 5
+   03F2 DD 7E 04      [19]  881 	ld	a,4 (ix)
+   03F5 C6 4A         [ 7]  882 	add	a, #0x4a
+   03F7 4F            [ 4]  883 	ld	c,a
+   03F8 C5            [11]  884 	push	bc
+   03F9 3E 05         [ 7]  885 	ld	a,#0x05
+   03FB F5            [11]  886 	push	af
+   03FC 33            [ 6]  887 	inc	sp
+   03FD 79            [ 4]  888 	ld	a,c
+   03FE F5            [11]  889 	push	af
+   03FF 33            [ 6]  890 	inc	sp
+   0400 CDr00r00      [17]  891 	call	_hw_outp
+   0403 F1            [10]  892 	pop	af
+   0404 C1            [10]  893 	pop	bc
+                            894 ;../../src/hw/modprn02/hw_modprn02.c:227: hw_outp(MODPRN02_SIO_A_CTRL + chan, reg5_status[chan] | SIO_REG5_RTS_FLAG); // Raise RTS
+   0405 11r00r00      [10]  895 	ld	de,#_reg5_status+0
+   0408 DD 6E 04      [19]  896 	ld	l,4 (ix)
+   040B 26 00         [ 7]  897 	ld	h,#0x00
+   040D 19            [11]  898 	add	hl,de
+   040E 7E            [ 7]  899 	ld	a,(hl)
+   040F CB CF         [ 8]  900 	set	1, a
+   0411 F5            [11]  901 	push	af
+   0412 33            [ 6]  902 	inc	sp
+   0413 79            [ 4]  903 	ld	a,c
+   0414 F5            [11]  904 	push	af
+   0415 33            [ 6]  905 	inc	sp
+   0416 CDr00r00      [17]  906 	call	_hw_outp
+   0419 F1            [10]  907 	pop	af
+   041A                     908 00105$:
+                            909 ;../../src/hw/modprn02/hw_modprn02.c:230: return chbuf;
+   041A DD 6E FF      [19]  910 	ld	l,-1 (ix)
+   041D 33            [ 6]  911 	inc	sp
+   041E DD E1         [14]  912 	pop	ix
+   0420 C9            [10]  913 	ret
+                            914 ;../../src/hw/modprn02/hw_modprn02.c:235: void chA_intHandler_rx_specialCond(void) __naked {
+                            915 ;	---------------------------------
+                            916 ; Function chA_intHandler_rx_specialCond
+                            917 ; ---------------------------------
+   0421                     918 _chA_intHandler_rx_specialCond::
+                            919 ;../../src/hw/modprn02/hw_modprn02.c:247: __endasm;
+   0421 F5            [11]  920 	push	af
+   0422 3E 30         [ 7]  921 	ld	a,#0x30
+   0424 D3 4A         [11]  922 	out	(#(0x48 + 0x02)),a
+   0426 FB            [ 4]  923 	ei
+   0427 F1            [10]  924 	pop	af
+   0428 ED 4D         [14]  925 	reti
+                            926 ;../../src/hw/modprn02/hw_modprn02.c:250: void chA_intHandler_rx_charAvail(void) __interrupt {
+                            927 ;	---------------------------------
+                            928 ; Function chA_intHandler_rx_charAvail
+                            929 ; ---------------------------------
+   042A                     930 _chA_intHandler_rx_charAvail::
+   042A FB            [ 4]  931 	ei
+   042B F5            [11]  932 	push	af
+   042C C5            [11]  933 	push	bc
+   042D D5            [11]  934 	push	de
+   042E E5            [11]  935 	push	hl
+   042F FD E5         [15]  936 	push	iy
+                            937 ;../../src/hw/modprn02/hw_modprn02.c:253: hw_outp(MODPRN02_SIO_A_CTRL, 0x05); // Select register 5
+   0431 21 4A 05      [10]  938 	ld	hl,#0x054a
+   0434 E5            [11]  939 	push	hl
+   0435 CDr00r00      [17]  940 	call	_hw_outp
+   0438 F1            [10]  941 	pop	af
+                            942 ;../../src/hw/modprn02/hw_modprn02.c:254: hw_outp(MODPRN02_SIO_A_CTRL, reg5_status[Channel_A]); // Lower RTS
+   0439 21r00r00      [10]  943 	ld	hl,#_reg5_status+0
+   043C 46            [ 7]  944 	ld	b,(hl)
+   043D C5            [11]  945 	push	bc
+   043E 33            [ 6]  946 	inc	sp
+   043F 3E 4A         [ 7]  947 	ld	a,#0x4a
+   0441 F5            [11]  948 	push	af
+   0442 33            [ 6]  949 	inc	sp
+   0443 CDr00r00      [17]  950 	call	_hw_outp
+   0446 F1            [10]  951 	pop	af
+                            952 ;../../src/hw/modprn02/hw_modprn02.c:256: ch_buf[Channel_A].idx = 0;
+   0447 21r11r00      [10]  953 	ld	hl,#(_ch_buf + 0x0011)
+   044A 36 00         [10]  954 	ld	(hl),#0x00
+                            955 ;../../src/hw/modprn02/hw_modprn02.c:258: hw_outp(MODPRN02_SIO_A_CTRL, 0x00); // Select register 0
+   044C 21 4A 00      [10]  956 	ld	hl,#0x004a
+   044F E5            [11]  957 	push	hl
+   0450 CDr00r00      [17]  958 	call	_hw_outp
+   0453 F1            [10]  959 	pop	af
+                            960 ;../../src/hw/modprn02/hw_modprn02.c:259: do {
+   0454                     961 00101$:
+                            962 ;../../src/hw/modprn02/hw_modprn02.c:260: ch_buf[Channel_A].buf[ch_buf[Channel_A].avail] = hw_inp(MODPRN02_SIO_A_DATA);
+   0454 01r01r00      [10]  963 	ld	bc,#_ch_buf + 1
+   0457 21r00r00      [10]  964 	ld	hl, #_ch_buf + 0
+   045A 6E            [ 7]  965 	ld	l, (hl)
+   045B 26 00         [ 7]  966 	ld	h,#0x00
+   045D 09            [11]  967 	add	hl,bc
+   045E E5            [11]  968 	push	hl
+   045F 3E 48         [ 7]  969 	ld	a,#0x48
+   0461 F5            [11]  970 	push	af
+   0462 33            [ 6]  971 	inc	sp
+   0463 CDr00r00      [17]  972 	call	_hw_inp
+   0466 33            [ 6]  973 	inc	sp
+   0467 4D            [ 4]  974 	ld	c,l
+   0468 E1            [10]  975 	pop	hl
+   0469 71            [ 7]  976 	ld	(hl),c
+                            977 ;../../src/hw/modprn02/hw_modprn02.c:261: ch_buf[Channel_A].avail++;
+   046A 3Ar00r00      [13]  978 	ld	a, (#_ch_buf + 0)
+   046D 3C            [ 4]  979 	inc	a
+   046E 32r00r00      [13]  980 	ld	(#_ch_buf),a
+                            981 ;../../src/hw/modprn02/hw_modprn02.c:263: reg_0 = hw_inp(MODPRN02_SIO_A_CTRL);
+   0471 3E 4A         [ 7]  982 	ld	a,#0x4a
+   0473 F5            [11]  983 	push	af
+   0474 33            [ 6]  984 	inc	sp
+   0475 CDr00r00      [17]  985 	call	_hw_inp
+   0478 33            [ 6]  986 	inc	sp
+                            987 ;../../src/hw/modprn02/hw_modprn02.c:264: } while (reg_0 & SIO_REG0_RXAVAIL_FLAG);
+   0479 CB 45         [ 8]  988 	bit	0, l
+   047B 20 D7         [12]  989 	jr	NZ,00101$
+                            990 ;../../src/hw/modprn02/hw_modprn02.c:268: __endasm;
+   047D FB            [ 4]  991 	ei
+   047E FD E1         [14]  992 	pop	iy
+   0480 E1            [10]  993 	pop	hl
+   0481 D1            [10]  994 	pop	de
+   0482 C1            [10]  995 	pop	bc
+   0483 F1            [10]  996 	pop	af
+   0484 ED 4D         [14]  997 	reti
+                            998 ;../../src/hw/modprn02/hw_modprn02.c:279: void chA_intHandler_statChng(void) __naked {
+                            999 ;	---------------------------------
+                           1000 ; Function chA_intHandler_statChng
+                           1001 ; ---------------------------------
+   0486                    1002 _chA_intHandler_statChng::
+                           1003 ;../../src/hw/modprn02/hw_modprn02.c:291: __endasm;
+   0486 F5            [11] 1004 	push	af
+   0487 3E 30         [ 7] 1005 	ld	a,#0x30
+   0489 D3 4A         [11] 1006 	out	(#(0x48 + 0x02)),a
+   048B FB            [ 4] 1007 	ei
+   048C F1            [10] 1008 	pop	af
+   048D ED 4D         [14] 1009 	reti
+                           1010 ;../../src/hw/modprn02/hw_modprn02.c:295: void chB_intHandler_rx_specialCond(void) __naked {
+                           1011 ;	---------------------------------
+                           1012 ; Function chB_intHandler_rx_specialCond
+                           1013 ; ---------------------------------
+   048F                    1014 _chB_intHandler_rx_specialCond::
+                           1015 ;../../src/hw/modprn02/hw_modprn02.c:307: __endasm;
+   048F F5            [11] 1016 	push	af
+   0490 3E 30         [ 7] 1017 	ld	a,#0x30
+   0492 D3 4B         [11] 1018 	out	(#(0x48 + 0x03)),a
+   0494 FB            [ 4] 1019 	ei
+   0495 F1            [10] 1020 	pop	af
+   0496 ED 4D         [14] 1021 	reti
+                           1022 ;../../src/hw/modprn02/hw_modprn02.c:310: void chB_intHandler_rx_charAvail(void) __interrupt {
+                           1023 ;	---------------------------------
+                           1024 ; Function chB_intHandler_rx_charAvail
+                           1025 ; ---------------------------------
+   0498                    1026 _chB_intHandler_rx_charAvail::
+   0498 FB            [ 4] 1027 	ei
+   0499 F5            [11] 1028 	push	af
+   049A C5            [11] 1029 	push	bc
+   049B D5            [11] 1030 	push	de
+   049C E5            [11] 1031 	push	hl
+   049D FD E5         [15] 1032 	push	iy
+                           1033 ;../../src/hw/modprn02/hw_modprn02.c:313: hw_outp(MODPRN02_SIO_B_CTRL, 0x05); // Select register 5
+   049F 21 4B 05      [10] 1034 	ld	hl,#0x054b
+   04A2 E5            [11] 1035 	push	hl
+   04A3 CDr00r00      [17] 1036 	call	_hw_outp
+   04A6 F1            [10] 1037 	pop	af
+                           1038 ;../../src/hw/modprn02/hw_modprn02.c:314: hw_outp(MODPRN02_SIO_B_CTRL, reg5_status[Channel_B]); // Lower RTS
+   04A7 21r01r00      [10] 1039 	ld	hl,#_reg5_status+1
+   04AA 46            [ 7] 1040 	ld	b,(hl)
+   04AB C5            [11] 1041 	push	bc
+   04AC 33            [ 6] 1042 	inc	sp
+   04AD 3E 4B         [ 7] 1043 	ld	a,#0x4b
+   04AF F5            [11] 1044 	push	af
+   04B0 33            [ 6] 1045 	inc	sp
+   04B1 CDr00r00      [17] 1046 	call	_hw_outp
+   04B4 F1            [10] 1047 	pop	af
+                           1048 ;../../src/hw/modprn02/hw_modprn02.c:316: ch_buf[Channel_B].idx = 0;
+   04B5 21r23r00      [10] 1049 	ld	hl,#(_ch_buf + 0x0023)
+   04B8 36 00         [10] 1050 	ld	(hl),#0x00
+                           1051 ;../../src/hw/modprn02/hw_modprn02.c:318: hw_outp(MODPRN02_SIO_B_CTRL, 0x00); // Select register 0
+   04BA 21 4B 00      [10] 1052 	ld	hl,#0x004b
+   04BD E5            [11] 1053 	push	hl
+   04BE CDr00r00      [17] 1054 	call	_hw_outp
+   04C1 F1            [10] 1055 	pop	af
+                           1056 ;../../src/hw/modprn02/hw_modprn02.c:319: do {
+   04C2                    1057 00101$:
+                           1058 ;../../src/hw/modprn02/hw_modprn02.c:320: ch_buf[Channel_B].buf[ch_buf[Channel_B].avail] = hw_inp(MODPRN02_SIO_B_DATA);
+   04C2 01r13r00      [10] 1059 	ld	bc,#_ch_buf + 19
+   04C5 21r12r00      [10] 1060 	ld	hl, #(_ch_buf + 0x0012) + 0
+   04C8 6E            [ 7] 1061 	ld	l, (hl)
+   04C9 26 00         [ 7] 1062 	ld	h,#0x00
+   04CB 09            [11] 1063 	add	hl,bc
+   04CC E5            [11] 1064 	push	hl
+   04CD 3E 49         [ 7] 1065 	ld	a,#0x49
+   04CF F5            [11] 1066 	push	af
+   04D0 33            [ 6] 1067 	inc	sp
+   04D1 CDr00r00      [17] 1068 	call	_hw_inp
+   04D4 33            [ 6] 1069 	inc	sp
+   04D5 4D            [ 4] 1070 	ld	c,l
+   04D6 E1            [10] 1071 	pop	hl
+   04D7 71            [ 7] 1072 	ld	(hl),c
+                           1073 ;../../src/hw/modprn02/hw_modprn02.c:321: ch_buf[Channel_B].avail++;
+   04D8 3Ar12r00      [13] 1074 	ld	a, (#(_ch_buf + 0x0012) + 0)
+   04DB 3C            [ 4] 1075 	inc	a
+   04DC 32r12r00      [13] 1076 	ld	(#(_ch_buf + 0x0012)),a
+                           1077 ;../../src/hw/modprn02/hw_modprn02.c:323: reg_0 = hw_inp(MODPRN02_SIO_B_CTRL);
+   04DF 3E 4B         [ 7] 1078 	ld	a,#0x4b
+   04E1 F5            [11] 1079 	push	af
+   04E2 33            [ 6] 1080 	inc	sp
+   04E3 CDr00r00      [17] 1081 	call	_hw_inp
+   04E6 33            [ 6] 1082 	inc	sp
+                           1083 ;../../src/hw/modprn02/hw_modprn02.c:324: } while (reg_0 & SIO_REG0_RXAVAIL_FLAG);
+   04E7 CB 45         [ 8] 1084 	bit	0, l
+   04E9 20 D7         [12] 1085 	jr	NZ,00101$
+                           1086 ;../../src/hw/modprn02/hw_modprn02.c:328: __endasm;
+   04EB FB            [ 4] 1087 	ei
+   04EC FD E1         [14] 1088 	pop	iy
+   04EE E1            [10] 1089 	pop	hl
+   04EF D1            [10] 1090 	pop	de
+   04F0 C1            [10] 1091 	pop	bc
+   04F1 F1            [10] 1092 	pop	af
+   04F2 ED 4D         [14] 1093 	reti
+                           1094 ;../../src/hw/modprn02/hw_modprn02.c:339: void chB_intHandler_statChng(void) __naked {
+                           1095 ;	---------------------------------
+                           1096 ; Function chB_intHandler_statChng
+                           1097 ; ---------------------------------
+   04F4                    1098 _chB_intHandler_statChng::
+                           1099 ;../../src/hw/modprn02/hw_modprn02.c:351: __endasm;
+   04F4 F5            [11] 1100 	push	af
+   04F5 3E 30         [ 7] 1101 	ld	a,#0x30
+   04F7 D3 4B         [11] 1102 	out	(#(0x48 + 0x03)),a
+   04F9 FB            [ 4] 1103 	ei
+   04FA F1            [10] 1104 	pop	af
+   04FB ED 4D         [14] 1105 	reti
+                           1106 	.area _CODE
+                           1107 	.area _INITIALIZER
+   0000                    1108 __xinit__reg5_status:
+   0000 00                 1109 	.db #0x00	; 0
+   0001 00                 1110 	.db #0x00	; 0
+   0002                    1111 __xinit__reg3_status:
+   0002 00                 1112 	.db #0x00	; 0
+   0003 00                 1113 	.db #0x00	; 0
+                           1114 	.area _CABS (ABS)

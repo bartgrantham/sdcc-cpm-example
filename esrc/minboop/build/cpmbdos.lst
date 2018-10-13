@@ -1,0 +1,103 @@
+                              1 ;--------------------------------------------------------
+                              2 ; File Created by SDCC : free open source ANSI-C Compiler
+                              3 ; Version 3.6.0 #9615 (Mac OS X x86_64)
+                              4 ;--------------------------------------------------------
+                              5 	.module cpmbdos
+                              6 	.optsdcc -mz80
+                              7 	
+                              8 ;--------------------------------------------------------
+                              9 ; Public variables in this module
+                             10 ;--------------------------------------------------------
+                             11 	.globl _cpmbdos
+                             12 	.globl _cpmbdos_extn
+                             13 ;--------------------------------------------------------
+                             14 ; special function registers
+                             15 ;--------------------------------------------------------
+                             16 ;--------------------------------------------------------
+                             17 ; ram data
+                             18 ;--------------------------------------------------------
+                             19 	.area _DATA
+                             20 ;--------------------------------------------------------
+                             21 ; ram data
+                             22 ;--------------------------------------------------------
+                             23 	.area _INITIALIZED
+                             24 ;--------------------------------------------------------
+                             25 ; absolute external ram data
+                             26 ;--------------------------------------------------------
+                             27 	.area _DABS (ABS)
+                             28 ;--------------------------------------------------------
+                             29 ; global & static initialisations
+                             30 ;--------------------------------------------------------
+                             31 	.area _HOME
+                             32 	.area _GSINIT
+                             33 	.area _GSFINAL
+                             34 	.area _GSINIT
+                             35 ;--------------------------------------------------------
+                             36 ; Home
+                             37 ;--------------------------------------------------------
+                             38 	.area _HOME
+                             39 	.area _HOME
+                             40 ;--------------------------------------------------------
+                             41 ; code
+                             42 ;--------------------------------------------------------
+                             43 	.area _CODE
+                             44 ;../../src/cpm/cpmbdos.c:4: uint8_t cpmbdos(BDOSCALL *p) __naked {
+                             45 ;	---------------------------------
+                             46 ; Function cpmbdos
+                             47 ; ---------------------------------
+   0000                      48 _cpmbdos::
+                             49 ;../../src/cpm/cpmbdos.c:21: __endasm;
+   0000 DD E5         [15]   50 	push	ix
+   0002 DD 21 00 00   [14]   51 	ld	ix,#0
+   0006 DD 39         [15]   52 	add	ix,sp
+   0008 DD 6E 04      [19]   53 	ld	l,4(ix)
+   000B DD 66 05      [19]   54 	ld	h,5(ix)
+   000E 4E            [ 7]   55 	ld	c,(hl) ; Load function
+   000F 23            [ 6]   56 	inc	hl
+   0010 5E            [ 7]   57 	ld	e,(hl) ; Prepare parameter in E ...
+   0011 23            [ 6]   58 	inc	hl
+   0012 56            [ 7]   59 	ld	d,(hl) ; And prepare parameter in D
+   0013 CD 05 00      [17]   60 	call	5 ; Make BDOS call!
+   0016 DD E1         [14]   61 	pop	ix
+   0018 C9            [10]   62 	ret
+                             63 ;../../src/cpm/cpmbdos.c:25: uint8_t cpmbdos_extn(BDOSCALL *p, uint16_t* ret_ba, uint16_t *ret_hl) __naked {
+                             64 ;	---------------------------------
+                             65 ; Function cpmbdos_extn
+                             66 ; ---------------------------------
+   0019                      67 _cpmbdos_extn::
+                             68 ;../../src/cpm/cpmbdos.c:72: __endasm;
+   0019 DD E5         [15]   69 	push	ix
+   001B DD 21 00 00   [14]   70 	ld	ix,#0x00
+   001F DD 39         [15]   71 	add	ix,sp
+   0021 DD 6E 04      [19]   72 	ld	l,4(ix) ; Load the pointer to BDOSCALL p into HL
+   0024 DD 66 05      [19]   73 	ld	h,5(ix) ; Prepare HL to contain the parameter address
+   0027 4E            [ 7]   74 	ld	c,(hl) ; Load p->func8 in register C
+   0028 23            [ 6]   75 	inc	hl ; Inrease the address so we point to first byte of p->parm16
+   0029 5E            [ 7]   76 	ld	e,(hl) ; Read first byte...
+   002A 23            [ 6]   77 	inc	hl
+   002B 56            [ 7]   78 	ld	d,(hl) ; Read second byte. We have p->parm16 in DE
+   002C CD 05 00      [17]   79 	call	5 ; Execute BDOS call!
+                             80 ;	We now have the return values in BA and HL
+   002F C5            [11]   81 	push	bc
+   0030 E5            [11]   82 	push	hl
+   0031 DD 21 00 00   [14]   83 	ld	ix,#0x00
+   0035 DD 39         [15]   84 	add	ix,sp
+   0037 DD 6E 0A      [19]   85 	ld	l,10(ix)
+   003A DD 66 0B      [19]   86 	ld	h,11(ix) ; Load pointer to ret_ba
+   003D 70            [ 7]   87 	ld	(hl),b
+   003E 23            [ 6]   88 	inc	hl
+   003F 77            [ 7]   89 	ld	(hl),a
+   0040 DD 6E 0C      [19]   90 	ld	l,12(ix)
+   0043 DD 66 0D      [19]   91 	ld	h,13(ix)
+   0046 C1            [10]   92 	pop	bc ; Recover the HL we have pushed
+   0047 70            [ 7]   93 	ld	(hl),b
+   0048 23            [ 6]   94 	inc	hl
+   0049 71            [ 7]   95 	ld	(hl),c
+   004A C5            [11]   96 	push	bc; Put HL back where it belongs
+   004B E1            [10]   97 	pop	hl;
+   004C C1            [10]   98 	pop	bc ; Restore BC
+   004D DD E1         [14]   99 	pop	ix ; Restore IX
+   004F C9            [10]  100 	ret
+                            101 	.area _CODE
+                            102 	.area _INITIALIZER
+                            103 	.area _CABS (ABS)

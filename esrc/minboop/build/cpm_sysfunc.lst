@@ -1,0 +1,687 @@
+                              1 ;--------------------------------------------------------
+                              2 ; File Created by SDCC : free open source ANSI-C Compiler
+                              3 ; Version 3.6.0 #9615 (Mac OS X x86_64)
+                              4 ;--------------------------------------------------------
+                              5 	.module cpm_sysfunc
+                              6 	.optsdcc -mz80
+                              7 	
+                              8 ;--------------------------------------------------------
+                              9 ; Public variables in this module
+                             10 ;--------------------------------------------------------
+                             11 	.globl _cpmbdos_extn
+                             12 	.globl _cpm_sysfunc_init
+                             13 	.globl _cpm_gets
+                             14 	.globl _cpm_getchar
+                             15 	.globl _cpm_putchar
+                             16 	.globl _cpm_setDMAAddr
+                             17 	.globl _cpm_getCurDrive
+                             18 	.globl _cpm_resetDrives
+                             19 	.globl _cpm_setCurDrive
+                             20 	.globl _cpm_setFCBname
+                             21 	.globl _cpm_performFileOp
+                             22 	.globl _cpm_reset
+                             23 ;--------------------------------------------------------
+                             24 ; special function registers
+                             25 ;--------------------------------------------------------
+                             26 ;--------------------------------------------------------
+                             27 ; ram data
+                             28 ;--------------------------------------------------------
+                             29 	.area _DATA
+   0000                      30 _bdos_readstr:
+   0000                      31 	.ds 3
+   0003                      32 _rs_buf:
+   0003                      33 	.ds 82
+   0055                      34 _ret_ba:
+   0055                      35 	.ds 2
+   0057                      36 _ret_hl:
+   0057                      37 	.ds 2
+                             38 ;--------------------------------------------------------
+                             39 ; ram data
+                             40 ;--------------------------------------------------------
+                             41 	.area _INITIALIZED
+                             42 ;--------------------------------------------------------
+                             43 ; absolute external ram data
+                             44 ;--------------------------------------------------------
+                             45 	.area _DABS (ABS)
+                             46 ;--------------------------------------------------------
+                             47 ; global & static initialisations
+                             48 ;--------------------------------------------------------
+                             49 	.area _HOME
+                             50 	.area _GSINIT
+                             51 	.area _GSFINAL
+                             52 	.area _GSINIT
+                             53 ;--------------------------------------------------------
+                             54 ; Home
+                             55 ;--------------------------------------------------------
+                             56 	.area _HOME
+                             57 	.area _HOME
+                             58 ;--------------------------------------------------------
+                             59 ; code
+                             60 ;--------------------------------------------------------
+                             61 	.area _CODE
+                             62 ;../../src/syslib/cpm_sysfunc.c:20: void cpm_sysfunc_init(void) {
+                             63 ;	---------------------------------
+                             64 ; Function cpm_sysfunc_init
+                             65 ; ---------------------------------
+   0000                      66 _cpm_sysfunc_init::
+                             67 ;../../src/syslib/cpm_sysfunc.c:22: bdos_readstr.func8 = C_READSTR;
+   0000 21r00r00      [10]   68 	ld	hl,#_bdos_readstr
+   0003 36 0A         [10]   69 	ld	(hl),#0x0a
+                             70 ;../../src/syslib/cpm_sysfunc.c:23: bdos_readstr.parm16 = (uint16_t)&rs_buf;
+   0005 01r03r00      [10]   71 	ld	bc,#_rs_buf+0
+   0008 ED 43r01r00   [20]   72 	ld	((_bdos_readstr + 0x0001)), bc
+   000C C9            [10]   73 	ret
+                             74 ;../../src/syslib/cpm_sysfunc.c:26: char *cpm_gets(char *p) {
+                             75 ;	---------------------------------
+                             76 ; Function cpm_gets
+                             77 ; ---------------------------------
+   000D                      78 _cpm_gets::
+   000D DD E5         [15]   79 	push	ix
+   000F DD 21 00 00   [14]   80 	ld	ix,#0
+   0013 DD 39         [15]   81 	add	ix,sp
+                             82 ;../../src/syslib/cpm_sysfunc.c:27: memset(rs_buf.bytes, 0, sizeof(rs_buf.bytes));
+   0015 01r03r00      [10]   83 	ld	bc,#_rs_buf+0
+   0018 C5            [11]   84 	push	bc
+   0019 21r05r00      [10]   85 	ld	hl,#(_rs_buf + 0x0002)
+   001C 06 50         [ 7]   86 	ld	b, #0x50
+   001E                      87 00103$:
+   001E 36 00         [10]   88 	ld	(hl), #0x00
+   0020 23            [ 6]   89 	inc	hl
+   0021 10 FB         [13]   90 	djnz	00103$
+   0023 C1            [10]   91 	pop	bc
+                             92 ;../../src/syslib/cpm_sysfunc.c:28: rs_buf.size = sizeof(rs_buf.bytes);
+   0024 3E 50         [ 7]   93 	ld	a,#0x50
+   0026 02            [ 7]   94 	ld	(bc),a
+                             95 ;../../src/syslib/cpm_sysfunc.c:29: rs_buf.len = 0;
+   0027 03            [ 6]   96 	inc	bc
+   0028 AF            [ 4]   97 	xor	a, a
+   0029 02            [ 7]   98 	ld	(bc),a
+                             99 ;../../src/syslib/cpm_sysfunc.c:31: cpmbdos_extn(&bdos_readstr, &ret_ba, &ret_hl);
+   002A C5            [11]  100 	push	bc
+   002B 21r57r00      [10]  101 	ld	hl,#_ret_hl
+   002E E5            [11]  102 	push	hl
+   002F 21r55r00      [10]  103 	ld	hl,#_ret_ba
+   0032 E5            [11]  104 	push	hl
+   0033 21r00r00      [10]  105 	ld	hl,#_bdos_readstr
+   0036 E5            [11]  106 	push	hl
+   0037 CDr00r00      [17]  107 	call	_cpmbdos_extn
+   003A 21 06 00      [10]  108 	ld	hl,#6
+   003D 39            [11]  109 	add	hl,sp
+   003E F9            [ 6]  110 	ld	sp,hl
+   003F C1            [10]  111 	pop	bc
+                            112 ;../../src/syslib/cpm_sysfunc.c:33: rs_buf.bytes[rs_buf.len] = '\n';
+   0040 0A            [ 7]  113 	ld	a,(bc)
+   0041 4F            [ 4]  114 	ld	c,a
+   0042 21r05r00      [10]  115 	ld	hl,#(_rs_buf + 0x0002)
+   0045 06 00         [ 7]  116 	ld	b,#0x00
+   0047 09            [11]  117 	add	hl, bc
+   0048 36 0A         [10]  118 	ld	(hl),#0x0a
+                            119 ;../../src/syslib/cpm_sysfunc.c:34: strcpy(p, rs_buf.bytes);
+   004A DD 5E 04      [19]  120 	ld	e,4 (ix)
+   004D DD 56 05      [19]  121 	ld	d,5 (ix)
+   0050 21r05r00      [10]  122 	ld	hl,#(_rs_buf + 0x0002)
+   0053 AF            [ 4]  123 	xor	a, a
+   0054                     124 00105$:
+   0054 BE            [ 7]  125 	cp	a, (hl)
+   0055 ED A0         [16]  126 	ldi
+   0057 20 FB         [12]  127 	jr	NZ, 00105$
+                            128 ;../../src/syslib/cpm_sysfunc.c:36: return p;
+   0059 DD 6E 04      [19]  129 	ld	l,4 (ix)
+   005C DD 66 05      [19]  130 	ld	h,5 (ix)
+   005F DD E1         [14]  131 	pop	ix
+   0061 C9            [10]  132 	ret
+                            133 ;../../src/syslib/cpm_sysfunc.c:39: char cpm_getchar(void) {
+                            134 ;	---------------------------------
+                            135 ; Function cpm_getchar
+                            136 ; ---------------------------------
+   0062                     137 _cpm_getchar::
+   0062 DD E5         [15]  138 	push	ix
+   0064 DD 21 00 00   [14]  139 	ld	ix,#0
+   0068 DD 39         [15]  140 	add	ix,sp
+   006A F5            [11]  141 	push	af
+   006B 3B            [ 6]  142 	dec	sp
+                            143 ;../../src/syslib/cpm_sysfunc.c:40: BDOSCALL cread = { C_READ, { (uint16_t)0 } };
+   006C 21 00 00      [10]  144 	ld	hl,#0x0000
+   006F 39            [11]  145 	add	hl,sp
+   0070 36 01         [10]  146 	ld	(hl),#0x01
+   0072 21 00 00      [10]  147 	ld	hl,#0x0000
+   0075 39            [11]  148 	add	hl,sp
+   0076 4D            [ 4]  149 	ld	c,l
+   0077 44            [ 4]  150 	ld	b,h
+   0078 23            [ 6]  151 	inc	hl
+   0079 AF            [ 4]  152 	xor	a, a
+   007A 77            [ 7]  153 	ld	(hl), a
+   007B 23            [ 6]  154 	inc	hl
+   007C 77            [ 7]  155 	ld	(hl), a
+                            156 ;../../src/syslib/cpm_sysfunc.c:41: return cpmbdos_extn(&cread, &ret_ba, &ret_hl);
+   007D 21r57r00      [10]  157 	ld	hl,#_ret_hl
+   0080 E5            [11]  158 	push	hl
+   0081 21r55r00      [10]  159 	ld	hl,#_ret_ba
+   0084 E5            [11]  160 	push	hl
+   0085 C5            [11]  161 	push	bc
+   0086 CDr00r00      [17]  162 	call	_cpmbdos_extn
+   0089 DD F9         [10]  163 	ld	sp,ix
+   008B DD E1         [14]  164 	pop	ix
+   008D C9            [10]  165 	ret
+                            166 ;../../src/syslib/cpm_sysfunc.c:44: void cpm_putchar(char c) {
+                            167 ;	---------------------------------
+                            168 ; Function cpm_putchar
+                            169 ; ---------------------------------
+   008E                     170 _cpm_putchar::
+   008E DD E5         [15]  171 	push	ix
+   0090 DD 21 00 00   [14]  172 	ld	ix,#0
+   0094 DD 39         [15]  173 	add	ix,sp
+   0096 F5            [11]  174 	push	af
+   0097 3B            [ 6]  175 	dec	sp
+                            176 ;../../src/syslib/cpm_sysfunc.c:45: BDOSCALL cwrite = { C_WRITE, { (uint16_t)c } };
+   0098 21 00 00      [10]  177 	ld	hl,#0x0000
+   009B 39            [11]  178 	add	hl,sp
+   009C 36 02         [10]  179 	ld	(hl),#0x02
+   009E 21 00 00      [10]  180 	ld	hl,#0x0000
+   00A1 39            [11]  181 	add	hl,sp
+   00A2 4D            [ 4]  182 	ld	c,l
+   00A3 44            [ 4]  183 	ld	b,h
+   00A4 23            [ 6]  184 	inc	hl
+   00A5 DD 5E 04      [19]  185 	ld	e,4 (ix)
+   00A8 16 00         [ 7]  186 	ld	d,#0x00
+   00AA 73            [ 7]  187 	ld	(hl),e
+   00AB 23            [ 6]  188 	inc	hl
+   00AC 72            [ 7]  189 	ld	(hl),d
+                            190 ;../../src/syslib/cpm_sysfunc.c:46: cpmbdos_extn(&cwrite, &ret_ba, &ret_hl);
+   00AD 11r55r00      [10]  191 	ld	de,#_ret_ba+0
+   00B0 21r57r00      [10]  192 	ld	hl,#_ret_hl
+   00B3 E5            [11]  193 	push	hl
+   00B4 D5            [11]  194 	push	de
+   00B5 C5            [11]  195 	push	bc
+   00B6 CDr00r00      [17]  196 	call	_cpmbdos_extn
+   00B9 21 06 00      [10]  197 	ld	hl,#6
+   00BC 39            [11]  198 	add	hl,sp
+   00BD F9            [ 6]  199 	ld	sp,hl
+   00BE DD F9         [10]  200 	ld	sp, ix
+   00C0 DD E1         [14]  201 	pop	ix
+   00C2 C9            [10]  202 	ret
+                            203 ;../../src/syslib/cpm_sysfunc.c:49: void cpm_setDMAAddr(uint16_t addr) {
+                            204 ;	---------------------------------
+                            205 ; Function cpm_setDMAAddr
+                            206 ; ---------------------------------
+   00C3                     207 _cpm_setDMAAddr::
+   00C3 DD E5         [15]  208 	push	ix
+   00C5 DD 21 00 00   [14]  209 	ld	ix,#0
+   00C9 DD 39         [15]  210 	add	ix,sp
+   00CB F5            [11]  211 	push	af
+   00CC 3B            [ 6]  212 	dec	sp
+                            213 ;../../src/syslib/cpm_sysfunc.c:50: BDOSCALL fdma = { F_DMAOFF, {addr} };
+   00CD 21 00 00      [10]  214 	ld	hl,#0x0000
+   00D0 39            [11]  215 	add	hl,sp
+   00D1 36 1A         [10]  216 	ld	(hl),#0x1a
+   00D3 21 00 00      [10]  217 	ld	hl,#0x0000
+   00D6 39            [11]  218 	add	hl,sp
+   00D7 4D            [ 4]  219 	ld	c,l
+   00D8 44            [ 4]  220 	ld	b,h
+   00D9 59            [ 4]  221 	ld	e, c
+   00DA 50            [ 4]  222 	ld	d, b
+   00DB 13            [ 6]  223 	inc	de
+   00DC DD 7E 04      [19]  224 	ld	a,4 (ix)
+   00DF 12            [ 7]  225 	ld	(de),a
+   00E0 13            [ 6]  226 	inc	de
+   00E1 DD 7E 05      [19]  227 	ld	a,5 (ix)
+   00E4 12            [ 7]  228 	ld	(de),a
+                            229 ;../../src/syslib/cpm_sysfunc.c:52: cpmbdos_extn(&fdma, &ret_ba, &ret_hl);
+   00E5 11r55r00      [10]  230 	ld	de,#_ret_ba+0
+   00E8 21r57r00      [10]  231 	ld	hl,#_ret_hl
+   00EB E5            [11]  232 	push	hl
+   00EC D5            [11]  233 	push	de
+   00ED C5            [11]  234 	push	bc
+   00EE CDr00r00      [17]  235 	call	_cpmbdos_extn
+   00F1 21 06 00      [10]  236 	ld	hl,#6
+   00F4 39            [11]  237 	add	hl,sp
+   00F5 F9            [ 6]  238 	ld	sp,hl
+   00F6 DD F9         [10]  239 	ld	sp, ix
+   00F8 DD E1         [14]  240 	pop	ix
+   00FA C9            [10]  241 	ret
+                            242 ;../../src/syslib/cpm_sysfunc.c:55: uint8_t cpm_getCurDrive(void) {
+                            243 ;	---------------------------------
+                            244 ; Function cpm_getCurDrive
+                            245 ; ---------------------------------
+   00FB                     246 _cpm_getCurDrive::
+   00FB DD E5         [15]  247 	push	ix
+   00FD DD 21 00 00   [14]  248 	ld	ix,#0
+   0101 DD 39         [15]  249 	add	ix,sp
+   0103 F5            [11]  250 	push	af
+   0104 3B            [ 6]  251 	dec	sp
+                            252 ;../../src/syslib/cpm_sysfunc.c:56: BDOSCALL drv = { DRV_GET, { 0 } };
+   0105 21 00 00      [10]  253 	ld	hl,#0x0000
+   0108 39            [11]  254 	add	hl,sp
+   0109 36 19         [10]  255 	ld	(hl),#0x19
+   010B 21 00 00      [10]  256 	ld	hl,#0x0000
+   010E 39            [11]  257 	add	hl,sp
+   010F 4D            [ 4]  258 	ld	c,l
+   0110 44            [ 4]  259 	ld	b,h
+   0111 23            [ 6]  260 	inc	hl
+   0112 AF            [ 4]  261 	xor	a, a
+   0113 77            [ 7]  262 	ld	(hl), a
+   0114 23            [ 6]  263 	inc	hl
+   0115 77            [ 7]  264 	ld	(hl), a
+                            265 ;../../src/syslib/cpm_sysfunc.c:58: return cpmbdos_extn(&drv, &ret_ba, &ret_hl);	
+   0116 21r57r00      [10]  266 	ld	hl,#_ret_hl
+   0119 E5            [11]  267 	push	hl
+   011A 21r55r00      [10]  268 	ld	hl,#_ret_ba
+   011D E5            [11]  269 	push	hl
+   011E C5            [11]  270 	push	bc
+   011F CDr00r00      [17]  271 	call	_cpmbdos_extn
+   0122 DD F9         [10]  272 	ld	sp,ix
+   0124 DD E1         [14]  273 	pop	ix
+   0126 C9            [10]  274 	ret
+                            275 ;../../src/syslib/cpm_sysfunc.c:61: uint8_t cpm_resetDrives(void) {
+                            276 ;	---------------------------------
+                            277 ; Function cpm_resetDrives
+                            278 ; ---------------------------------
+   0127                     279 _cpm_resetDrives::
+   0127 DD E5         [15]  280 	push	ix
+   0129 DD 21 00 00   [14]  281 	ld	ix,#0
+   012D DD 39         [15]  282 	add	ix,sp
+   012F F5            [11]  283 	push	af
+   0130 3B            [ 6]  284 	dec	sp
+                            285 ;../../src/syslib/cpm_sysfunc.c:62: BDOSCALL drv = { DRV_ALLRESET, { 0 } };
+   0131 21 00 00      [10]  286 	ld	hl,#0x0000
+   0134 39            [11]  287 	add	hl,sp
+   0135 36 0D         [10]  288 	ld	(hl),#0x0d
+   0137 21 00 00      [10]  289 	ld	hl,#0x0000
+   013A 39            [11]  290 	add	hl,sp
+   013B 4D            [ 4]  291 	ld	c,l
+   013C 44            [ 4]  292 	ld	b,h
+   013D 23            [ 6]  293 	inc	hl
+   013E AF            [ 4]  294 	xor	a, a
+   013F 77            [ 7]  295 	ld	(hl), a
+   0140 23            [ 6]  296 	inc	hl
+   0141 77            [ 7]  297 	ld	(hl), a
+                            298 ;../../src/syslib/cpm_sysfunc.c:64: return cpmbdos_extn(&drv, &ret_ba, &ret_hl);	
+   0142 21r57r00      [10]  299 	ld	hl,#_ret_hl
+   0145 E5            [11]  300 	push	hl
+   0146 21r55r00      [10]  301 	ld	hl,#_ret_ba
+   0149 E5            [11]  302 	push	hl
+   014A C5            [11]  303 	push	bc
+   014B CDr00r00      [17]  304 	call	_cpmbdos_extn
+   014E DD F9         [10]  305 	ld	sp,ix
+   0150 DD E1         [14]  306 	pop	ix
+   0152 C9            [10]  307 	ret
+                            308 ;../../src/syslib/cpm_sysfunc.c:67: uint8_t cpm_setCurDrive(uint8_t drive) {
+                            309 ;	---------------------------------
+                            310 ; Function cpm_setCurDrive
+                            311 ; ---------------------------------
+   0153                     312 _cpm_setCurDrive::
+   0153 DD E5         [15]  313 	push	ix
+   0155 DD 21 00 00   [14]  314 	ld	ix,#0
+   0159 DD 39         [15]  315 	add	ix,sp
+   015B F5            [11]  316 	push	af
+   015C 3B            [ 6]  317 	dec	sp
+                            318 ;../../src/syslib/cpm_sysfunc.c:68: BDOSCALL drv = { DRV_SET, { drive } };
+   015D 21 00 00      [10]  319 	ld	hl,#0x0000
+   0160 39            [11]  320 	add	hl,sp
+   0161 36 0E         [10]  321 	ld	(hl),#0x0e
+   0163 21 00 00      [10]  322 	ld	hl,#0x0000
+   0166 39            [11]  323 	add	hl,sp
+   0167 4D            [ 4]  324 	ld	c,l
+   0168 44            [ 4]  325 	ld	b,h
+   0169 23            [ 6]  326 	inc	hl
+   016A DD 5E 04      [19]  327 	ld	e,4 (ix)
+   016D 16 00         [ 7]  328 	ld	d,#0x00
+   016F 73            [ 7]  329 	ld	(hl),e
+   0170 23            [ 6]  330 	inc	hl
+   0171 72            [ 7]  331 	ld	(hl),d
+                            332 ;../../src/syslib/cpm_sysfunc.c:70: return cpmbdos_extn(&drv, &ret_ba, &ret_hl);
+   0172 21r57r00      [10]  333 	ld	hl,#_ret_hl
+   0175 E5            [11]  334 	push	hl
+   0176 21r55r00      [10]  335 	ld	hl,#_ret_ba
+   0179 E5            [11]  336 	push	hl
+   017A C5            [11]  337 	push	bc
+   017B CDr00r00      [17]  338 	call	_cpmbdos_extn
+   017E DD F9         [10]  339 	ld	sp,ix
+   0180 DD E1         [14]  340 	pop	ix
+   0182 C9            [10]  341 	ret
+                            342 ;../../src/syslib/cpm_sysfunc.c:73: void cpm_setFCBname(char *fname, char *ftype, FCB *cb) {
+                            343 ;	---------------------------------
+                            344 ; Function cpm_setFCBname
+                            345 ; ---------------------------------
+   0183                     346 _cpm_setFCBname::
+   0183 DD E5         [15]  347 	push	ix
+   0185 DD 21 00 00   [14]  348 	ld	ix,#0
+   0189 DD 39         [15]  349 	add	ix,sp
+   018B F5            [11]  350 	push	af
+   018C F5            [11]  351 	push	af
+                            352 ;../../src/syslib/cpm_sysfunc.c:77: for (idx = 0; (idx < 8) && (fname[idx] != '\0'); idx++) {
+   018D DD 4E 08      [19]  353 	ld	c,8 (ix)
+   0190 DD 46 09      [19]  354 	ld	b,9 (ix)
+   0193 21 01 00      [10]  355 	ld	hl,#0x0001
+   0196 09            [11]  356 	add	hl,bc
+   0197 DD 75 FE      [19]  357 	ld	-2 (ix),l
+   019A DD 74 FF      [19]  358 	ld	-1 (ix),h
+   019D 11 00 00      [10]  359 	ld	de,#0x0000
+   01A0                     360 00117$:
+   01A0 7B            [ 4]  361 	ld	a,e
+   01A1 D6 08         [ 7]  362 	sub	a, #0x08
+   01A3 7A            [ 4]  363 	ld	a,d
+   01A4 17            [ 4]  364 	rla
+   01A5 3F            [ 4]  365 	ccf
+   01A6 1F            [ 4]  366 	rra
+   01A7 DE 80         [ 7]  367 	sbc	a, #0x80
+   01A9 30 2F         [12]  368 	jr	NC,00131$
+   01AB DD 6E 04      [19]  369 	ld	l,4 (ix)
+   01AE DD 66 05      [19]  370 	ld	h,5 (ix)
+   01B1 19            [11]  371 	add	hl,de
+   01B2 6E            [ 7]  372 	ld	l,(hl)
+   01B3 7D            [ 4]  373 	ld	a,l
+   01B4 B7            [ 4]  374 	or	a, a
+   01B5 28 23         [12]  375 	jr	Z,00131$
+                            376 ;../../src/syslib/cpm_sysfunc.c:78: c = fname[idx] & 0x7F;
+   01B7 CB BD         [ 8]  377 	res	7, l
+                            378 ;../../src/syslib/cpm_sysfunc.c:79: if (c >= 0x61 && c <= 0x7a)
+   01B9 7D            [ 4]  379 	ld	a,l
+   01BA D6 61         [ 7]  380 	sub	a, #0x61
+   01BC 38 09         [12]  381 	jr	C,00102$
+   01BE 3E 7A         [ 7]  382 	ld	a,#0x7a
+   01C0 95            [ 4]  383 	sub	a, l
+   01C1 38 04         [12]  384 	jr	C,00102$
+                            385 ;../../src/syslib/cpm_sysfunc.c:80: c -= 0x20; 
+   01C3 7D            [ 4]  386 	ld	a,l
+   01C4 C6 E0         [ 7]  387 	add	a,#0xe0
+   01C6 6F            [ 4]  388 	ld	l,a
+   01C7                     389 00102$:
+                            390 ;../../src/syslib/cpm_sysfunc.c:82: cb->filename[idx] = c;
+   01C7 E5            [11]  391 	push	hl
+   01C8 DD 6E FE      [19]  392 	ld	l,-2 (ix)
+   01CB DD 66 FF      [19]  393 	ld	h,-1 (ix)
+   01CE E5            [11]  394 	push	hl
+   01CF FD E1         [14]  395 	pop	iy
+   01D1 E1            [10]  396 	pop	hl
+   01D2 FD 19         [15]  397 	add	iy, de
+   01D4 FD 75 00      [19]  398 	ld	0 (iy), l
+                            399 ;../../src/syslib/cpm_sysfunc.c:77: for (idx = 0; (idx < 8) && (fname[idx] != '\0'); idx++) {
+   01D7 13            [ 6]  400 	inc	de
+   01D8 18 C6         [12]  401 	jr	00117$
+                            402 ;../../src/syslib/cpm_sysfunc.c:85: while (idx < 8) {
+   01DA                     403 00131$:
+   01DA                     404 00105$:
+   01DA 7B            [ 4]  405 	ld	a,e
+   01DB D6 08         [ 7]  406 	sub	a, #0x08
+   01DD 7A            [ 4]  407 	ld	a,d
+   01DE 17            [ 4]  408 	rla
+   01DF 3F            [ 4]  409 	ccf
+   01E0 1F            [ 4]  410 	rra
+   01E1 DE 80         [ 7]  411 	sbc	a, #0x80
+   01E3 30 0C         [12]  412 	jr	NC,00107$
+                            413 ;../../src/syslib/cpm_sysfunc.c:86: cb->filename[idx] = ' '; // Pad the filename
+   01E5 DD 6E FE      [19]  414 	ld	l,-2 (ix)
+   01E8 DD 66 FF      [19]  415 	ld	h,-1 (ix)
+   01EB 19            [11]  416 	add	hl,de
+   01EC 36 20         [10]  417 	ld	(hl),#0x20
+                            418 ;../../src/syslib/cpm_sysfunc.c:87: idx++;
+   01EE 13            [ 6]  419 	inc	de
+   01EF 18 E9         [12]  420 	jr	00105$
+   01F1                     421 00107$:
+                            422 ;../../src/syslib/cpm_sysfunc.c:90: for (idx = 0; (idx < 3) && (ftype[idx] != '\0'); idx++) {
+   01F1 21 09 00      [10]  423 	ld	hl,#0x0009
+   01F4 09            [11]  424 	add	hl,bc
+   01F5 4D            [ 4]  425 	ld	c,l
+   01F6 44            [ 4]  426 	ld	b,h
+   01F7 21 00 00      [10]  427 	ld	hl,#0x0000
+   01FA E3            [19]  428 	ex	(sp), hl
+   01FB                     429 00121$:
+   01FB DD 7E FC      [19]  430 	ld	a,-4 (ix)
+   01FE D6 03         [ 7]  431 	sub	a, #0x03
+   0200 DD 7E FD      [19]  432 	ld	a,-3 (ix)
+   0203 17            [ 4]  433 	rla
+   0204 3F            [ 4]  434 	ccf
+   0205 1F            [ 4]  435 	rra
+   0206 DE 80         [ 7]  436 	sbc	a, #0x80
+   0208 30 31         [12]  437 	jr	NC,00138$
+   020A DD 7E 06      [19]  438 	ld	a,6 (ix)
+   020D DD 86 FC      [19]  439 	add	a, -4 (ix)
+   0210 6F            [ 4]  440 	ld	l,a
+   0211 DD 7E 07      [19]  441 	ld	a,7 (ix)
+   0214 DD 8E FD      [19]  442 	adc	a, -3 (ix)
+   0217 67            [ 4]  443 	ld	h,a
+   0218 5E            [ 7]  444 	ld	e,(hl)
+   0219 7B            [ 4]  445 	ld	a,e
+   021A B7            [ 4]  446 	or	a, a
+   021B 28 1E         [12]  447 	jr	Z,00138$
+                            448 ;../../src/syslib/cpm_sysfunc.c:91: c = ftype[idx] & 0x7F;
+   021D CB BB         [ 8]  449 	res	7, e
+                            450 ;../../src/syslib/cpm_sysfunc.c:92: if (c >= 0x61 && c <= 0x7a)
+   021F 7B            [ 4]  451 	ld	a,e
+   0220 D6 61         [ 7]  452 	sub	a, #0x61
+   0222 38 09         [12]  453 	jr	C,00109$
+   0224 3E 7A         [ 7]  454 	ld	a,#0x7a
+   0226 93            [ 4]  455 	sub	a, e
+   0227 38 04         [12]  456 	jr	C,00109$
+                            457 ;../../src/syslib/cpm_sysfunc.c:93: c -= 0x20; 
+   0229 7B            [ 4]  458 	ld	a,e
+   022A C6 E0         [ 7]  459 	add	a,#0xe0
+   022C 5F            [ 4]  460 	ld	e,a
+   022D                     461 00109$:
+                            462 ;../../src/syslib/cpm_sysfunc.c:95: cb->filetype[idx] = c;
+   022D E1            [10]  463 	pop	hl
+   022E E5            [11]  464 	push	hl
+   022F 09            [11]  465 	add	hl,bc
+   0230 73            [ 7]  466 	ld	(hl),e
+                            467 ;../../src/syslib/cpm_sysfunc.c:90: for (idx = 0; (idx < 3) && (ftype[idx] != '\0'); idx++) {
+   0231 DD 34 FC      [23]  468 	inc	-4 (ix)
+   0234 20 C5         [12]  469 	jr	NZ,00121$
+   0236 DD 34 FD      [23]  470 	inc	-3 (ix)
+   0239 18 C0         [12]  471 	jr	00121$
+                            472 ;../../src/syslib/cpm_sysfunc.c:98: while (idx < 3) {
+   023B                     473 00138$:
+   023B D1            [10]  474 	pop	de
+   023C D5            [11]  475 	push	de
+   023D                     476 00112$:
+   023D 7B            [ 4]  477 	ld	a,e
+   023E D6 03         [ 7]  478 	sub	a, #0x03
+   0240 7A            [ 4]  479 	ld	a,d
+   0241 17            [ 4]  480 	rla
+   0242 3F            [ 4]  481 	ccf
+   0243 1F            [ 4]  482 	rra
+   0244 DE 80         [ 7]  483 	sbc	a, #0x80
+   0246 30 08         [12]  484 	jr	NC,00123$
+                            485 ;../../src/syslib/cpm_sysfunc.c:99: cb->filetype[idx] = ' '; // Pad the filetype
+   0248 69            [ 4]  486 	ld	l, c
+   0249 60            [ 4]  487 	ld	h, b
+   024A 19            [11]  488 	add	hl,de
+   024B 36 20         [10]  489 	ld	(hl),#0x20
+                            490 ;../../src/syslib/cpm_sysfunc.c:100: idx++;
+   024D 13            [ 6]  491 	inc	de
+   024E 18 ED         [12]  492 	jr	00112$
+   0250                     493 00123$:
+   0250 DD F9         [10]  494 	ld	sp, ix
+   0252 DD E1         [14]  495 	pop	ix
+   0254 C9            [10]  496 	ret
+                            497 ;../../src/syslib/cpm_sysfunc.c:104: uint8_t cpm_performFileOp(FileOperation fop, FCB *cb) {
+                            498 ;	---------------------------------
+                            499 ; Function cpm_performFileOp
+                            500 ; ---------------------------------
+   0255                     501 _cpm_performFileOp::
+   0255 DD E5         [15]  502 	push	ix
+   0257 DD 21 00 00   [14]  503 	ld	ix,#0
+   025B DD 39         [15]  504 	add	ix,sp
+   025D F5            [11]  505 	push	af
+   025E 3B            [ 6]  506 	dec	sp
+                            507 ;../../src/syslib/cpm_sysfunc.c:105: BDOSCALL call = { 0, {(uint16_t)cb} };
+   025F 21 00 00      [10]  508 	ld	hl,#0x0000
+   0262 39            [11]  509 	add	hl,sp
+   0263 36 00         [10]  510 	ld	(hl),#0x00
+   0265 21 00 00      [10]  511 	ld	hl,#0x0000
+   0268 39            [11]  512 	add	hl,sp
+   0269 4D            [ 4]  513 	ld	c,l
+   026A 44            [ 4]  514 	ld	b,h
+   026B 23            [ 6]  515 	inc	hl
+   026C DD 5E 05      [19]  516 	ld	e,5 (ix)
+   026F DD 56 06      [19]  517 	ld	d,6 (ix)
+   0272 73            [ 7]  518 	ld	(hl),e
+   0273 23            [ 6]  519 	inc	hl
+   0274 72            [ 7]  520 	ld	(hl),d
+                            521 ;../../src/syslib/cpm_sysfunc.c:107: switch (fop) {
+   0275 3E 0C         [ 7]  522 	ld	a,#0x0c
+   0277 DD 96 04      [19]  523 	sub	a, 4 (ix)
+   027A 38 6F         [12]  524 	jr	C,00114$
+   027C DD 5E 04      [19]  525 	ld	e,4 (ix)
+   027F 16 00         [ 7]  526 	ld	d,#0x00
+   0281 21r88r02      [10]  527 	ld	hl,#00122$
+   0284 19            [11]  528 	add	hl,de
+   0285 19            [11]  529 	add	hl,de
+   0286 19            [11]  530 	add	hl,de
+   0287 E9            [ 4]  531 	jp	(hl)
+   0288                     532 00122$:
+   0288 C3rAFr02      [10]  533 	jp	00101$
+   028B C3rB4r02      [10]  534 	jp	00102$
+   028E C3rB9r02      [10]  535 	jp	00103$
+   0291 C3rBEr02      [10]  536 	jp	00104$
+   0294 C3rC3r02      [10]  537 	jp	00105$
+   0297 C3rC8r02      [10]  538 	jp	00106$
+   029A C3rCDr02      [10]  539 	jp	00107$
+   029D C3rD2r02      [10]  540 	jp	00108$
+   02A0 C3rD7r02      [10]  541 	jp	00109$
+   02A3 C3rDCr02      [10]  542 	jp	00110$
+   02A6 C3rE1r02      [10]  543 	jp	00111$
+   02A9 C3rE6r02      [10]  544 	jp	00112$
+   02AC C3rEBr02      [10]  545 	jp	00113$
+                            546 ;../../src/syslib/cpm_sysfunc.c:108: case fop_open:
+   02AF                     547 00101$:
+                            548 ;../../src/syslib/cpm_sysfunc.c:109: call.func8 = F_OPEN;
+   02AF 3E 0F         [ 7]  549 	ld	a,#0x0f
+   02B1 02            [ 7]  550 	ld	(bc),a
+                            551 ;../../src/syslib/cpm_sysfunc.c:110: break;
+   02B2 18 3A         [12]  552 	jr	00115$
+                            553 ;../../src/syslib/cpm_sysfunc.c:111: case fop_close:
+   02B4                     554 00102$:
+                            555 ;../../src/syslib/cpm_sysfunc.c:112: call.func8 = F_CLOSE;
+   02B4 3E 10         [ 7]  556 	ld	a,#0x10
+   02B6 02            [ 7]  557 	ld	(bc),a
+                            558 ;../../src/syslib/cpm_sysfunc.c:113: break;
+   02B7 18 35         [12]  559 	jr	00115$
+                            560 ;../../src/syslib/cpm_sysfunc.c:114: case fop_firstNameMatch:
+   02B9                     561 00103$:
+                            562 ;../../src/syslib/cpm_sysfunc.c:115: call.func8 = F_SMATCH;
+   02B9 3E 11         [ 7]  563 	ld	a,#0x11
+   02BB 02            [ 7]  564 	ld	(bc),a
+                            565 ;../../src/syslib/cpm_sysfunc.c:116: break;
+   02BC 18 30         [12]  566 	jr	00115$
+                            567 ;../../src/syslib/cpm_sysfunc.c:117: case fop_nextMatch:
+   02BE                     568 00104$:
+                            569 ;../../src/syslib/cpm_sysfunc.c:118: call.func8 = F_NMATCH;
+   02BE 3E 12         [ 7]  570 	ld	a,#0x12
+   02C0 02            [ 7]  571 	ld	(bc),a
+                            572 ;../../src/syslib/cpm_sysfunc.c:119: break;
+   02C1 18 2B         [12]  573 	jr	00115$
+                            574 ;../../src/syslib/cpm_sysfunc.c:120: case fop_makeFile:
+   02C3                     575 00105$:
+                            576 ;../../src/syslib/cpm_sysfunc.c:121: call.func8 = F_MAKE;
+   02C3 3E 16         [ 7]  577 	ld	a,#0x16
+   02C5 02            [ 7]  578 	ld	(bc),a
+                            579 ;../../src/syslib/cpm_sysfunc.c:122: break;
+   02C6 18 26         [12]  580 	jr	00115$
+                            581 ;../../src/syslib/cpm_sysfunc.c:123: case fop_delFile:
+   02C8                     582 00106$:
+                            583 ;../../src/syslib/cpm_sysfunc.c:124: call.func8 = F_DELETE;
+   02C8 3E 13         [ 7]  584 	ld	a,#0x13
+   02CA 02            [ 7]  585 	ld	(bc),a
+                            586 ;../../src/syslib/cpm_sysfunc.c:125: break;
+   02CB 18 21         [12]  587 	jr	00115$
+                            588 ;../../src/syslib/cpm_sysfunc.c:126: case fop_setFileAttr:
+   02CD                     589 00107$:
+                            590 ;../../src/syslib/cpm_sysfunc.c:127: call.func8 = F_ATTRIB;
+   02CD 3E 1E         [ 7]  591 	ld	a,#0x1e
+   02CF 02            [ 7]  592 	ld	(bc),a
+                            593 ;../../src/syslib/cpm_sysfunc.c:128: break;
+   02D0 18 1C         [12]  594 	jr	00115$
+                            595 ;../../src/syslib/cpm_sysfunc.c:129: case fop_readSeqRecord:
+   02D2                     596 00108$:
+                            597 ;../../src/syslib/cpm_sysfunc.c:130: call.func8 = F_READ;
+   02D2 3E 14         [ 7]  598 	ld	a,#0x14
+   02D4 02            [ 7]  599 	ld	(bc),a
+                            600 ;../../src/syslib/cpm_sysfunc.c:131: break;
+   02D5 18 17         [12]  601 	jr	00115$
+                            602 ;../../src/syslib/cpm_sysfunc.c:132: case fop_writeSeqRecord:
+   02D7                     603 00109$:
+                            604 ;../../src/syslib/cpm_sysfunc.c:133: call.func8 = F_WRITE;
+   02D7 3E 15         [ 7]  605 	ld	a,#0x15
+   02D9 02            [ 7]  606 	ld	(bc),a
+                            607 ;../../src/syslib/cpm_sysfunc.c:134: break;
+   02DA 18 12         [12]  608 	jr	00115$
+                            609 ;../../src/syslib/cpm_sysfunc.c:135: case fop_readRandRecord:
+   02DC                     610 00110$:
+                            611 ;../../src/syslib/cpm_sysfunc.c:136: call.func8 = F_READRAND;
+   02DC 3E 21         [ 7]  612 	ld	a,#0x21
+   02DE 02            [ 7]  613 	ld	(bc),a
+                            614 ;../../src/syslib/cpm_sysfunc.c:137: break;
+   02DF 18 0D         [12]  615 	jr	00115$
+                            616 ;../../src/syslib/cpm_sysfunc.c:138: case fop_writeRandRecord:
+   02E1                     617 00111$:
+                            618 ;../../src/syslib/cpm_sysfunc.c:139: call.func8 = F_WRITERAND;
+   02E1 3E 22         [ 7]  619 	ld	a,#0x22
+   02E3 02            [ 7]  620 	ld	(bc),a
+                            621 ;../../src/syslib/cpm_sysfunc.c:140: break;
+   02E4 18 08         [12]  622 	jr	00115$
+                            623 ;../../src/syslib/cpm_sysfunc.c:141: case fop_updRandRecPtr:
+   02E6                     624 00112$:
+                            625 ;../../src/syslib/cpm_sysfunc.c:142: call.func8 = F_RANDREC;
+   02E6 3E 24         [ 7]  626 	ld	a,#0x24
+   02E8 02            [ 7]  627 	ld	(bc),a
+                            628 ;../../src/syslib/cpm_sysfunc.c:143: break;
+   02E9 18 03         [12]  629 	jr	00115$
+                            630 ;../../src/syslib/cpm_sysfunc.c:144: case fop_calcFileSize:
+   02EB                     631 00113$:
+                            632 ;../../src/syslib/cpm_sysfunc.c:145: default:
+   02EB                     633 00114$:
+                            634 ;../../src/syslib/cpm_sysfunc.c:146: call.func8 = F_SIZE;
+   02EB 3E 23         [ 7]  635 	ld	a,#0x23
+   02ED 02            [ 7]  636 	ld	(bc),a
+                            637 ;../../src/syslib/cpm_sysfunc.c:148: }
+   02EE                     638 00115$:
+                            639 ;../../src/syslib/cpm_sysfunc.c:150: return cpmbdos_extn(&call, &ret_ba, &ret_hl);
+   02EE 21r57r00      [10]  640 	ld	hl,#_ret_hl
+   02F1 E5            [11]  641 	push	hl
+   02F2 21r55r00      [10]  642 	ld	hl,#_ret_ba
+   02F5 E5            [11]  643 	push	hl
+   02F6 C5            [11]  644 	push	bc
+   02F7 CDr00r00      [17]  645 	call	_cpmbdos_extn
+   02FA DD F9         [10]  646 	ld	sp,ix
+   02FC DD E1         [14]  647 	pop	ix
+   02FE C9            [10]  648 	ret
+                            649 ;../../src/syslib/cpm_sysfunc.c:154: void cpm_reset(void) {
+                            650 ;	---------------------------------
+                            651 ; Function cpm_reset
+                            652 ; ---------------------------------
+   02FF                     653 _cpm_reset::
+   02FF DD E5         [15]  654 	push	ix
+   0301 DD 21 00 00   [14]  655 	ld	ix,#0
+   0305 DD 39         [15]  656 	add	ix,sp
+   0307 F5            [11]  657 	push	af
+   0308 3B            [ 6]  658 	dec	sp
+                            659 ;../../src/syslib/cpm_sysfunc.c:155: BDOSCALL sreset = { S_RESET, { (uint16_t)0 } };
+   0309 21 00 00      [10]  660 	ld	hl,#0x0000
+   030C 39            [11]  661 	add	hl,sp
+   030D 36 00         [10]  662 	ld	(hl),#0x00
+   030F 21 00 00      [10]  663 	ld	hl,#0x0000
+   0312 39            [11]  664 	add	hl,sp
+   0313 4D            [ 4]  665 	ld	c,l
+   0314 44            [ 4]  666 	ld	b,h
+   0315 23            [ 6]  667 	inc	hl
+   0316 AF            [ 4]  668 	xor	a, a
+   0317 77            [ 7]  669 	ld	(hl), a
+   0318 23            [ 6]  670 	inc	hl
+   0319 77            [ 7]  671 	ld	(hl), a
+                            672 ;../../src/syslib/cpm_sysfunc.c:156: cpmbdos_extn(&sreset, &ret_ba, &ret_hl);
+   031A 11r55r00      [10]  673 	ld	de,#_ret_ba+0
+   031D 21r57r00      [10]  674 	ld	hl,#_ret_hl
+   0320 E5            [11]  675 	push	hl
+   0321 D5            [11]  676 	push	de
+   0322 C5            [11]  677 	push	bc
+   0323 CDr00r00      [17]  678 	call	_cpmbdos_extn
+   0326 21 06 00      [10]  679 	ld	hl,#6
+   0329 39            [11]  680 	add	hl,sp
+   032A F9            [ 6]  681 	ld	sp,hl
+   032B DD F9         [10]  682 	ld	sp, ix
+   032D DD E1         [14]  683 	pop	ix
+   032F C9            [10]  684 	ret
+                            685 	.area _CODE
+                            686 	.area _INITIALIZER
+                            687 	.area _CABS (ABS)

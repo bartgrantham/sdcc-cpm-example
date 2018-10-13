@@ -1,0 +1,1001 @@
+                              1 ;--------------------------------------------------------
+                              2 ; File Created by SDCC : free open source ANSI-C Compiler
+                              3 ; Version 3.6.0 #9615 (Mac OS X x86_64)
+                              4 ;--------------------------------------------------------
+                              5 	.module cprintf
+                              6 	.optsdcc -mz80
+                              7 	
+                              8 ;--------------------------------------------------------
+                              9 ; Public variables in this module
+                             10 ;--------------------------------------------------------
+                             11 	.globl _cprintf
+                             12 	.globl _strlen
+                             13 	.globl _cpm_putchar
+                             14 	.globl _nstring
+                             15 ;--------------------------------------------------------
+                             16 ; special function registers
+                             17 ;--------------------------------------------------------
+                             18 ;--------------------------------------------------------
+                             19 ; ram data
+                             20 ;--------------------------------------------------------
+                             21 	.area _DATA
+                             22 ;--------------------------------------------------------
+                             23 ; ram data
+                             24 ;--------------------------------------------------------
+                             25 	.area _INITIALIZED
+                             26 ;--------------------------------------------------------
+                             27 ; absolute external ram data
+                             28 ;--------------------------------------------------------
+                             29 	.area _DABS (ABS)
+                             30 ;--------------------------------------------------------
+                             31 ; global & static initialisations
+                             32 ;--------------------------------------------------------
+                             33 	.area _HOME
+                             34 	.area _GSINIT
+                             35 	.area _GSFINAL
+                             36 	.area _GSINIT
+                             37 ;--------------------------------------------------------
+                             38 ; Home
+                             39 ;--------------------------------------------------------
+                             40 	.area _HOME
+                             41 	.area _HOME
+                             42 ;--------------------------------------------------------
+                             43 ; code
+                             44 ;--------------------------------------------------------
+                             45 	.area _CODE
+                             46 ;../../src/syslib/cprintf.c:36: int cprintf(const char *fmt, ...) {
+                             47 ;	---------------------------------
+                             48 ; Function cprintf
+                             49 ; ---------------------------------
+   0000                      50 _cprintf::
+   0000 DD E5         [15]   51 	push	ix
+   0002 DD 21 00 00   [14]   52 	ld	ix,#0
+   0006 DD 39         [15]   53 	add	ix,sp
+   0008 21 DA FF      [10]   54 	ld	hl,#-38
+   000B 39            [11]   55 	add	hl,sp
+   000C F9            [ 6]   56 	ld	sp,hl
+                             57 ;../../src/syslib/cprintf.c:38: int count = 0;
+   000D DD 36 FE 00   [19]   58 	ld	-2 (ix),#0x00
+   0011 DD 36 FF 00   [19]   59 	ld	-1 (ix),#0x00
+                             60 ;../../src/syslib/cprintf.c:47: va_start(ap, fmt);
+   0015 21 2C 00      [10]   61 	ld	hl,#0x002a+1+1
+   0018 39            [11]   62 	add	hl,sp
+   0019 E3            [19]   63 	ex	(sp), hl
+                             64 ;../../src/syslib/cprintf.c:49: while (c = *fmt++) {
+   001A 21 02 00      [10]   65 	ld	hl,#0x0002
+   001D 39            [11]   66 	add	hl,sp
+   001E DD 75 FC      [19]   67 	ld	-4 (ix),l
+   0021 DD 74 FD      [19]   68 	ld	-3 (ix),h
+   0024                      69 00171$:
+   0024 DD 6E 04      [19]   70 	ld	l,4 (ix)
+   0027 DD 66 05      [19]   71 	ld	h,5 (ix)
+   002A 4E            [ 7]   72 	ld	c,(hl)
+   002B 23            [ 6]   73 	inc	hl
+   002C DD 75 04      [19]   74 	ld	4 (ix),l
+   002F DD 74 05      [19]   75 	ld	5 (ix),h
+   0032 16 00         [ 7]   76 	ld	d,#0x00
+   0034 DD 71 FA      [19]   77 	ld	-6 (ix),c
+   0037 DD 72 FB      [19]   78 	ld	-5 (ix),d
+   003A 7A            [ 4]   79 	ld	a,d
+   003B B1            [ 4]   80 	or	a,c
+   003C CAr48r05      [10]   81 	jp	Z,00173$
+                             82 ;../../src/syslib/cprintf.c:50: count++;
+   003F DD 34 FE      [23]   83 	inc	-2 (ix)
+   0042 20 03         [12]   84 	jr	NZ,00323$
+   0044 DD 34 FF      [23]   85 	inc	-1 (ix)
+   0047                      86 00323$:
+                             87 ;../../src/syslib/cprintf.c:51: if (c != '%') {
+   0047 DD 7E FA      [19]   88 	ld	a,-6 (ix)
+   004A D6 25         [ 7]   89 	sub	a, #0x25
+   004C 20 06         [12]   90 	jr	NZ,00324$
+   004E DD 7E FB      [19]   91 	ld	a,-5 (ix)
+   0051 B7            [ 4]   92 	or	a, a
+   0052 28 20         [12]   93 	jr	Z,00169$
+   0054                      94 00324$:
+                             95 ;../../src/syslib/cprintf.c:52: if (c == '\n') putch('\r');
+   0054 DD 7E FA      [19]   96 	ld	a,-6 (ix)
+   0057 D6 0A         [ 7]   97 	sub	a, #0x0a
+   0059 20 0E         [12]   98 	jr	NZ,00102$
+   005B DD 7E FB      [19]   99 	ld	a,-5 (ix)
+   005E B7            [ 4]  100 	or	a, a
+   005F 20 08         [12]  101 	jr	NZ,00102$
+   0061 3E 0D         [ 7]  102 	ld	a,#0x0d
+   0063 F5            [11]  103 	push	af
+   0064 33            [ 6]  104 	inc	sp
+   0065 CDr00r00      [17]  105 	call	_cpm_putchar
+   0068 33            [ 6]  106 	inc	sp
+   0069                     107 00102$:
+                            108 ;../../src/syslib/cprintf.c:53: putch(c);
+   0069 DD 46 FA      [19]  109 	ld	b,-6 (ix)
+   006C C5            [11]  110 	push	bc
+   006D 33            [ 6]  111 	inc	sp
+   006E CDr00r00      [17]  112 	call	_cpm_putchar
+   0071 33            [ 6]  113 	inc	sp
+   0072 18 B0         [12]  114 	jr	00171$
+   0074                     115 00169$:
+                            116 ;../../src/syslib/cprintf.c:55: type = 1;
+   0074 DD 36 EB 01   [19]  117 	ld	-21 (ix),#0x01
+   0078 DD 36 EC 00   [19]  118 	ld	-20 (ix),#0x00
+                            119 ;../../src/syslib/cprintf.c:56: padch = *fmt;
+   007C DD 4E 04      [19]  120 	ld	c,4 (ix)
+   007F DD 46 05      [19]  121 	ld	b,5 (ix)
+   0082 0A            [ 7]  122 	ld	a,(bc)
+   0083 DD 77 E8      [19]  123 	ld	-24 (ix),a
+                            124 ;../../src/syslib/cprintf.c:57: maxsize = minsize = 0;
+   0086 DD 36 FA 00   [19]  125 	ld	-6 (ix),#0x00
+   008A DD 36 FB 00   [19]  126 	ld	-5 (ix),#0x00
+   008E DD 36 F8 00   [19]  127 	ld	-8 (ix),#0x00
+   0092 DD 36 F9 00   [19]  128 	ld	-7 (ix),#0x00
+                            129 ;../../src/syslib/cprintf.c:58: if (padch == '-') fmt++;
+   0096 DD 7E E8      [19]  130 	ld	a,-24 (ix)
+   0099 D6 2D         [ 7]  131 	sub	a, #0x2d
+   009B 20 04         [12]  132 	jr	NZ,00327$
+   009D 3E 01         [ 7]  133 	ld	a,#0x01
+   009F 18 01         [12]  134 	jr	00328$
+   00A1                     135 00327$:
+   00A1 AF            [ 4]  136 	xor	a,a
+   00A2                     137 00328$:
+   00A2 DD 77 F7      [19]  138 	ld	-9 (ix), a
+   00A5 B7            [ 4]  139 	or	a, a
+   00A6 28 07         [12]  140 	jr	Z,00187$
+   00A8 03            [ 6]  141 	inc	bc
+   00A9 DD 71 04      [19]  142 	ld	4 (ix),c
+   00AC DD 70 05      [19]  143 	ld	5 (ix),b
+   00AF                     144 00187$:
+   00AF DD 7E 04      [19]  145 	ld	a,4 (ix)
+   00B2 DD 77 F5      [19]  146 	ld	-11 (ix),a
+   00B5 DD 7E 05      [19]  147 	ld	a,5 (ix)
+   00B8 DD 77 F6      [19]  148 	ld	-10 (ix),a
+   00BB                     149 00174$:
+                            150 ;../../src/syslib/cprintf.c:61: c = *fmt++;
+   00BB DD 6E F5      [19]  151 	ld	l,-11 (ix)
+   00BE DD 66 F6      [19]  152 	ld	h,-10 (ix)
+   00C1 4E            [ 7]  153 	ld	c,(hl)
+   00C2 DD 34 F5      [23]  154 	inc	-11 (ix)
+   00C5 20 03         [12]  155 	jr	NZ,00329$
+   00C7 DD 34 F6      [23]  156 	inc	-10 (ix)
+   00CA                     157 00329$:
+   00CA DD 7E F5      [19]  158 	ld	a,-11 (ix)
+   00CD DD 77 04      [19]  159 	ld	4 (ix),a
+   00D0 DD 7E F6      [19]  160 	ld	a,-10 (ix)
+   00D3 DD 77 05      [19]  161 	ld	5 (ix),a
+   00D6 DD 71 EF      [19]  162 	ld	-17 (ix),c
+   00D9 DD 36 F0 00   [19]  163 	ld	-16 (ix),#0x00
+                            164 ;../../src/syslib/cprintf.c:62: if (c < '0' || c > '9') break;
+   00DD DD 7E EF      [19]  165 	ld	a,-17 (ix)
+   00E0 D6 30         [ 7]  166 	sub	a, #0x30
+   00E2 DD 7E F0      [19]  167 	ld	a,-16 (ix)
+   00E5 17            [ 4]  168 	rla
+   00E6 3F            [ 4]  169 	ccf
+   00E7 1F            [ 4]  170 	rra
+   00E8 DE 80         [ 7]  171 	sbc	a, #0x80
+   00EA 38 33         [12]  172 	jr	C,00214$
+   00EC 3E 39         [ 7]  173 	ld	a,#0x39
+   00EE DD BE EF      [19]  174 	cp	a, -17 (ix)
+   00F1 3E 00         [ 7]  175 	ld	a,#0x00
+   00F3 DD 9E F0      [19]  176 	sbc	a, -16 (ix)
+   00F6 E2rFBr00      [10]  177 	jp	PO, 00330$
+   00F9 EE 80         [ 7]  178 	xor	a, #0x80
+   00FB                     179 00330$:
+   00FB FAr1Fr01      [10]  180 	jp	M,00214$
+                            181 ;../../src/syslib/cprintf.c:63: minsize *= 10;
+   00FE DD 4E FA      [19]  182 	ld	c,-6 (ix)
+   0101 DD 46 FB      [19]  183 	ld	b,-5 (ix)
+   0104 69            [ 4]  184 	ld	l, c
+   0105 60            [ 4]  185 	ld	h, b
+   0106 29            [11]  186 	add	hl, hl
+   0107 29            [11]  187 	add	hl, hl
+   0108 09            [11]  188 	add	hl, bc
+   0109 29            [11]  189 	add	hl, hl
+                            190 ;../../src/syslib/cprintf.c:64: minsize += c - '0';
+   010A DD 7E EF      [19]  191 	ld	a,-17 (ix)
+   010D C6 D0         [ 7]  192 	add	a,#0xd0
+   010F 4F            [ 4]  193 	ld	c,a
+   0110 DD 7E F0      [19]  194 	ld	a,-16 (ix)
+   0113 CE FF         [ 7]  195 	adc	a,#0xff
+   0115 47            [ 4]  196 	ld	b,a
+   0116 09            [11]  197 	add	hl,bc
+   0117 DD 75 FA      [19]  198 	ld	-6 (ix),l
+   011A DD 74 FB      [19]  199 	ld	-5 (ix),h
+   011D 18 9C         [12]  200 	jr	00174$
+   011F                     201 00214$:
+   011F DD 7E F5      [19]  202 	ld	a,-11 (ix)
+   0122 DD 77 04      [19]  203 	ld	4 (ix),a
+   0125 DD 7E F6      [19]  204 	ld	a,-10 (ix)
+   0128 DD 77 05      [19]  205 	ld	5 (ix),a
+                            206 ;../../src/syslib/cprintf.c:67: if (c == '.')
+   012B DD 7E EF      [19]  207 	ld	a,-17 (ix)
+   012E D6 2E         [ 7]  208 	sub	a, #0x2e
+   0130 20 76         [12]  209 	jr	NZ,00114$
+   0132 DD 7E F0      [19]  210 	ld	a,-16 (ix)
+   0135 B7            [ 4]  211 	or	a, a
+   0136 20 70         [12]  212 	jr	NZ,00114$
+   0138                     213 00176$:
+                            214 ;../../src/syslib/cprintf.c:69: c = *fmt++;
+   0138 DD 6E F5      [19]  215 	ld	l,-11 (ix)
+   013B DD 66 F6      [19]  216 	ld	h,-10 (ix)
+   013E 4E            [ 7]  217 	ld	c,(hl)
+   013F DD 34 F5      [23]  218 	inc	-11 (ix)
+   0142 20 03         [12]  219 	jr	NZ,00333$
+   0144 DD 34 F6      [23]  220 	inc	-10 (ix)
+   0147                     221 00333$:
+   0147 DD 7E F5      [19]  222 	ld	a,-11 (ix)
+   014A DD 77 04      [19]  223 	ld	4 (ix),a
+   014D DD 7E F6      [19]  224 	ld	a,-10 (ix)
+   0150 DD 77 05      [19]  225 	ld	5 (ix),a
+   0153 DD 71 EF      [19]  226 	ld	-17 (ix),c
+   0156 DD 36 F0 00   [19]  227 	ld	-16 (ix),#0x00
+                            228 ;../../src/syslib/cprintf.c:70: if (c < '0' || c > '9') break;
+   015A DD 7E EF      [19]  229 	ld	a,-17 (ix)
+   015D D6 30         [ 7]  230 	sub	a, #0x30
+   015F DD 7E F0      [19]  231 	ld	a,-16 (ix)
+   0162 17            [ 4]  232 	rla
+   0163 3F            [ 4]  233 	ccf
+   0164 1F            [ 4]  234 	rra
+   0165 DE 80         [ 7]  235 	sbc	a, #0x80
+   0167 38 33         [12]  236 	jr	C,00215$
+   0169 3E 39         [ 7]  237 	ld	a,#0x39
+   016B DD BE EF      [19]  238 	cp	a, -17 (ix)
+   016E 3E 00         [ 7]  239 	ld	a,#0x00
+   0170 DD 9E F0      [19]  240 	sbc	a, -16 (ix)
+   0173 E2r78r01      [10]  241 	jp	PO, 00334$
+   0176 EE 80         [ 7]  242 	xor	a, #0x80
+   0178                     243 00334$:
+   0178 FAr9Cr01      [10]  244 	jp	M,00215$
+                            245 ;../../src/syslib/cprintf.c:71: maxsize *= 10;
+   017B DD 4E F8      [19]  246 	ld	c,-8 (ix)
+   017E DD 46 F9      [19]  247 	ld	b,-7 (ix)
+   0181 69            [ 4]  248 	ld	l, c
+   0182 60            [ 4]  249 	ld	h, b
+   0183 29            [11]  250 	add	hl, hl
+   0184 29            [11]  251 	add	hl, hl
+   0185 09            [11]  252 	add	hl, bc
+   0186 29            [11]  253 	add	hl, hl
+                            254 ;../../src/syslib/cprintf.c:72: maxsize += c - '0';
+   0187 DD 7E EF      [19]  255 	ld	a,-17 (ix)
+   018A C6 D0         [ 7]  256 	add	a,#0xd0
+   018C 4F            [ 4]  257 	ld	c,a
+   018D DD 7E F0      [19]  258 	ld	a,-16 (ix)
+   0190 CE FF         [ 7]  259 	adc	a,#0xff
+   0192 47            [ 4]  260 	ld	b,a
+   0193 09            [11]  261 	add	hl,bc
+   0194 DD 75 F8      [19]  262 	ld	-8 (ix),l
+   0197 DD 74 F9      [19]  263 	ld	-7 (ix),h
+   019A 18 9C         [12]  264 	jr	00176$
+   019C                     265 00215$:
+   019C DD 7E F5      [19]  266 	ld	a,-11 (ix)
+   019F DD 77 04      [19]  267 	ld	4 (ix),a
+   01A2 DD 7E F6      [19]  268 	ld	a,-10 (ix)
+   01A5 DD 77 05      [19]  269 	ld	5 (ix),a
+   01A8                     270 00114$:
+                            271 ;../../src/syslib/cprintf.c:75: if (padch == '-') minsize = -minsize;
+   01A8 DD 7E F7      [19]  272 	ld	a,-9 (ix)
+   01AB B7            [ 4]  273 	or	a, a
+   01AC 28 11         [12]  274 	jr	Z,00118$
+   01AE AF            [ 4]  275 	xor	a, a
+   01AF DD 96 FA      [19]  276 	sub	a, -6 (ix)
+   01B2 DD 77 FA      [19]  277 	ld	-6 (ix),a
+   01B5 3E 00         [ 7]  278 	ld	a, #0x00
+   01B7 DD 9E FB      [19]  279 	sbc	a, -5 (ix)
+   01BA DD 77 FB      [19]  280 	ld	-5 (ix),a
+   01BD 18 0B         [12]  281 	jr	00119$
+   01BF                     282 00118$:
+                            283 ;../../src/syslib/cprintf.c:76: else if (padch != '0') padch = ' ';
+   01BF DD 7E E8      [19]  284 	ld	a,-24 (ix)
+   01C2 D6 30         [ 7]  285 	sub	a, #0x30
+   01C4 28 04         [12]  286 	jr	Z,00119$
+   01C6 DD 36 E8 20   [19]  287 	ld	-24 (ix),#0x20
+   01CA                     288 00119$:
+                            289 ;../../src/syslib/cprintf.c:78: if (c == 0) break;
+   01CA DD 7E F0      [19]  290 	ld	a,-16 (ix)
+   01CD DD B6 EF      [19]  291 	or	a,-17 (ix)
+   01D0 CAr48r05      [10]  292 	jp	Z,00173$
+                            293 ;../../src/syslib/cprintf.c:49: while (c = *fmt++) {
+   01D3 DD 4E 04      [19]  294 	ld	c,4 (ix)
+   01D6 DD 46 05      [19]  295 	ld	b,5 (ix)
+                            296 ;../../src/syslib/cprintf.c:80: c = *fmt++;
+   01D9 21 01 00      [10]  297 	ld	hl,#0x0001
+   01DC 09            [11]  298 	add	hl,bc
+   01DD DD 75 F5      [19]  299 	ld	-11 (ix),l
+   01E0 DD 74 F6      [19]  300 	ld	-10 (ix),h
+                            301 ;../../src/syslib/cprintf.c:79: if (c == 'h') {
+   01E3 DD 7E EF      [19]  302 	ld	a,-17 (ix)
+   01E6 D6 68         [ 7]  303 	sub	a, #0x68
+   01E8 20 25         [12]  304 	jr	NZ,00125$
+   01EA DD 7E F0      [19]  305 	ld	a,-16 (ix)
+   01ED B7            [ 4]  306 	or	a, a
+   01EE 20 1F         [12]  307 	jr	NZ,00125$
+                            308 ;../../src/syslib/cprintf.c:80: c = *fmt++;
+   01F0 0A            [ 7]  309 	ld	a,(bc)
+   01F1 4F            [ 4]  310 	ld	c,a
+   01F2 DD 7E F5      [19]  311 	ld	a,-11 (ix)
+   01F5 DD 77 04      [19]  312 	ld	4 (ix),a
+   01F8 DD 7E F6      [19]  313 	ld	a,-10 (ix)
+   01FB DD 77 05      [19]  314 	ld	5 (ix),a
+   01FE DD 71 EF      [19]  315 	ld	-17 (ix),c
+   0201 DD 36 F0 00   [19]  316 	ld	-16 (ix),#0x00
+                            317 ;../../src/syslib/cprintf.c:81: type = 0;
+   0205 DD 36 EB 00   [19]  318 	ld	-21 (ix),#0x00
+   0209 DD 36 EC 00   [19]  319 	ld	-20 (ix),#0x00
+   020D 18 2A         [12]  320 	jr	00126$
+   020F                     321 00125$:
+                            322 ;../../src/syslib/cprintf.c:82: } else if (c == 'l') {
+   020F DD 7E EF      [19]  323 	ld	a,-17 (ix)
+   0212 D6 6C         [ 7]  324 	sub	a, #0x6c
+   0214 20 23         [12]  325 	jr	NZ,00126$
+   0216 DD 7E F0      [19]  326 	ld	a,-16 (ix)
+   0219 B7            [ 4]  327 	or	a, a
+   021A 20 1D         [12]  328 	jr	NZ,00126$
+                            329 ;../../src/syslib/cprintf.c:83: c = *fmt++;
+   021C 0A            [ 7]  330 	ld	a,(bc)
+   021D 4F            [ 4]  331 	ld	c,a
+   021E DD 7E F5      [19]  332 	ld	a,-11 (ix)
+   0221 DD 77 04      [19]  333 	ld	4 (ix),a
+   0224 DD 7E F6      [19]  334 	ld	a,-10 (ix)
+   0227 DD 77 05      [19]  335 	ld	5 (ix),a
+   022A DD 71 EF      [19]  336 	ld	-17 (ix),c
+   022D DD 36 F0 00   [19]  337 	ld	-16 (ix),#0x00
+                            338 ;../../src/syslib/cprintf.c:84: type = 2;
+   0231 DD 36 EB 02   [19]  339 	ld	-21 (ix),#0x02
+   0235 DD 36 EC 00   [19]  340 	ld	-20 (ix),#0x00
+   0239                     341 00126$:
+                            342 ;../../src/syslib/cprintf.c:91: type |= 4;
+   0239 DD 7E EB      [19]  343 	ld	a,-21 (ix)
+   023C CB D7         [ 8]  344 	set	2, a
+   023E DD 77 F5      [19]  345 	ld	-11 (ix),a
+   0241 DD 7E EC      [19]  346 	ld	a,-20 (ix)
+   0244 DD 77 F6      [19]  347 	ld	-10 (ix),a
+                            348 ;../../src/syslib/cprintf.c:108: val = va_arg(ap, short);
+   0247 C1            [10]  349 	pop	bc
+   0248 C5            [11]  350 	push	bc
+   0249 03            [ 6]  351 	inc	bc
+   024A 03            [ 6]  352 	inc	bc
+   024B 59            [ 4]  353 	ld	e,c
+   024C 50            [ 4]  354 	ld	d,b
+   024D 1B            [ 6]  355 	dec	de
+   024E 1B            [ 6]  356 	dec	de
+   024F DD 73 F3      [19]  357 	ld	-13 (ix),e
+   0252 DD 72 F4      [19]  358 	ld	-12 (ix),d
+                            359 ;../../src/syslib/cprintf.c:87: switch (c) {
+   0255 DD 7E EF      [19]  360 	ld	a,-17 (ix)
+   0258 D6 58         [ 7]  361 	sub	a, #0x58
+   025A 20 06         [12]  362 	jr	NZ,00340$
+   025C DD 7E F0      [19]  363 	ld	a,-16 (ix)
+   025F B7            [ 4]  364 	or	a, a
+   0260 28 53         [12]  365 	jr	Z,00128$
+   0262                     366 00340$:
+   0262 DD 7E EF      [19]  367 	ld	a,-17 (ix)
+   0265 D6 63         [ 7]  368 	sub	a, #0x63
+   0267 20 07         [12]  369 	jr	NZ,00341$
+   0269 DD 7E F0      [19]  370 	ld	a,-16 (ix)
+   026C B7            [ 4]  371 	or	a, a
+   026D CAr26r05      [10]  372 	jp	Z,00165$
+   0270                     373 00341$:
+   0270 DD 7E EF      [19]  374 	ld	a,-17 (ix)
+   0273 D6 64         [ 7]  375 	sub	a, #0x64
+   0275 20 07         [12]  376 	jr	NZ,00342$
+   0277 DD 7E F0      [19]  377 	ld	a,-16 (ix)
+   027A B7            [ 4]  378 	or	a, a
+   027B CArF7r02      [10]  379 	jp	Z,00135$
+   027E                     380 00342$:
+   027E DD 7E EF      [19]  381 	ld	a,-17 (ix)
+   0281 D6 6F         [ 7]  382 	sub	a, #0x6f
+   0283 20 06         [12]  383 	jr	NZ,00343$
+   0285 DD 7E F0      [19]  384 	ld	a,-16 (ix)
+   0288 B7            [ 4]  385 	or	a, a
+   0289 28 40         [12]  386 	jr	Z,00129$
+   028B                     387 00343$:
+   028B DD 7E EF      [19]  388 	ld	a,-17 (ix)
+   028E D6 73         [ 7]  389 	sub	a, #0x73
+   0290 20 07         [12]  390 	jr	NZ,00344$
+   0292 DD 7E F0      [19]  391 	ld	a,-16 (ix)
+   0295 B7            [ 4]  392 	or	a, a
+   0296 CArEFr03      [10]  393 	jp	Z,00146$
+   0299                     394 00344$:
+   0299 DD 7E EF      [19]  395 	ld	a,-17 (ix)
+   029C D6 75         [ 7]  396 	sub	a, #0x75
+   029E 20 06         [12]  397 	jr	NZ,00345$
+   02A0 DD 7E F0      [19]  398 	ld	a,-16 (ix)
+   02A3 B7            [ 4]  399 	or	a, a
+   02A4 28 3B         [12]  400 	jr	Z,00132$
+   02A6                     401 00345$:
+   02A6 DD 7E EF      [19]  402 	ld	a,-17 (ix)
+   02A9 D6 78         [ 7]  403 	sub	a, #0x78
+   02AB C2r3Cr05      [10]  404 	jp	NZ,00166$
+   02AE DD 7E F0      [19]  405 	ld	a,-16 (ix)
+   02B1 B7            [ 4]  406 	or	a, a
+   02B2 C2r3Cr05      [10]  407 	jp	NZ,00166$
+                            408 ;../../src/syslib/cprintf.c:89: case 'x':
+   02B5                     409 00128$:
+                            410 ;../../src/syslib/cprintf.c:90: base = 16;
+   02B5 DD 36 E9 10   [19]  411 	ld	-23 (ix),#0x10
+   02B9 DD 36 EA 00   [19]  412 	ld	-22 (ix),#0x00
+                            413 ;../../src/syslib/cprintf.c:91: type |= 4;
+   02BD DD 7E F5      [19]  414 	ld	a,-11 (ix)
+   02C0 DD 77 EB      [19]  415 	ld	-21 (ix),a
+   02C3 DD 7E F6      [19]  416 	ld	a,-10 (ix)
+   02C6 DD 77 EC      [19]  417 	ld	-20 (ix),a
+                            418 ;../../src/syslib/cprintf.c:92: if (0) {
+   02C9 18 34         [12]  419 	jr	00137$
+                            420 ;../../src/syslib/cprintf.c:93: case 'o':
+   02CB                     421 00129$:
+                            422 ;../../src/syslib/cprintf.c:94: base = 8;
+   02CB DD 36 E9 08   [19]  423 	ld	-23 (ix),#0x08
+   02CF DD 36 EA 00   [19]  424 	ld	-22 (ix),#0x00
+                            425 ;../../src/syslib/cprintf.c:95: type |= 4;
+   02D3 DD 7E F5      [19]  426 	ld	a,-11 (ix)
+   02D6 DD 77 EB      [19]  427 	ld	-21 (ix),a
+   02D9 DD 7E F6      [19]  428 	ld	a,-10 (ix)
+   02DC DD 77 EC      [19]  429 	ld	-20 (ix),a
+                            430 ;../../src/syslib/cprintf.c:97: if (0) {
+   02DF 18 1E         [12]  431 	jr	00137$
+                            432 ;../../src/syslib/cprintf.c:98: case 'u':
+   02E1                     433 00132$:
+                            434 ;../../src/syslib/cprintf.c:99: base = 10;
+   02E1 DD 36 E9 0A   [19]  435 	ld	-23 (ix),#0x0a
+   02E5 DD 36 EA 00   [19]  436 	ld	-22 (ix),#0x00
+                            437 ;../../src/syslib/cprintf.c:100: type |= 4;
+   02E9 DD 7E F5      [19]  438 	ld	a,-11 (ix)
+   02EC DD 77 EB      [19]  439 	ld	-21 (ix),a
+   02EF DD 7E F6      [19]  440 	ld	a,-10 (ix)
+   02F2 DD 77 EC      [19]  441 	ld	-20 (ix),a
+                            442 ;../../src/syslib/cprintf.c:102: if (0) {
+   02F5 18 08         [12]  443 	jr	00137$
+                            444 ;../../src/syslib/cprintf.c:103: case 'd':
+   02F7                     445 00135$:
+                            446 ;../../src/syslib/cprintf.c:104: base = -10;
+   02F7 DD 36 E9 F6   [19]  447 	ld	-23 (ix),#0xf6
+   02FB DD 36 EA FF   [19]  448 	ld	-22 (ix),#0xff
+   02FF                     449 00137$:
+                            450 ;../../src/syslib/cprintf.c:106: switch (type) {
+   02FF DD CB EC 7E   [20]  451 	bit	7, -20 (ix)
+   0303 C2rCFr03      [10]  452 	jp	NZ,00144$
+   0306 3E 06         [ 7]  453 	ld	a,#0x06
+   0308 DD BE EB      [19]  454 	cp	a, -21 (ix)
+   030B 3E 00         [ 7]  455 	ld	a,#0x00
+   030D DD 9E EC      [19]  456 	sbc	a, -20 (ix)
+   0310 E2r15r03      [10]  457 	jp	PO, 00348$
+   0313 EE 80         [ 7]  458 	xor	a, #0x80
+   0315                     459 00348$:
+   0315 FArCFr03      [10]  460 	jp	M,00144$
+                            461 ;../../src/syslib/cprintf.c:114: val = va_arg(ap, long);
+   0318 DD 7E DA      [19]  462 	ld	a,-38 (ix)
+   031B C6 04         [ 7]  463 	add	a, #0x04
+   031D DD 77 F5      [19]  464 	ld	-11 (ix),a
+   0320 DD 7E DB      [19]  465 	ld	a,-37 (ix)
+   0323 CE 00         [ 7]  466 	adc	a, #0x00
+   0325 DD 77 F6      [19]  467 	ld	-10 (ix),a
+   0328 DD 7E F5      [19]  468 	ld	a,-11 (ix)
+   032B C6 FC         [ 7]  469 	add	a,#0xfc
+   032D DD 77 F1      [19]  470 	ld	-15 (ix),a
+   0330 DD 7E F6      [19]  471 	ld	a,-10 (ix)
+   0333 CE FF         [ 7]  472 	adc	a,#0xff
+   0335 DD 77 F2      [19]  473 	ld	-14 (ix),a
+                            474 ;../../src/syslib/cprintf.c:117: val = va_arg(ap, unsigned short);
+                            475 ;../../src/syslib/cprintf.c:106: switch (type) {
+   0338 D5            [11]  476 	push	de
+   0339 DD 5E EB      [19]  477 	ld	e,-21 (ix)
+   033C 16 00         [ 7]  478 	ld	d,#0x00
+   033E 21r46r03      [10]  479 	ld	hl,#00349$
+   0341 19            [11]  480 	add	hl,de
+   0342 19            [11]  481 	add	hl,de
+   0343 19            [11]  482 	add	hl,de
+   0344 D1            [10]  483 	pop	de
+   0345 E9            [ 4]  484 	jp	(hl)
+   0346                     485 00349$:
+   0346 C3r5Br03      [10]  486 	jp	00138$
+   0349 C3r6Er03      [10]  487 	jp	00139$
+   034C C3r81r03      [10]  488 	jp	00140$
+   034F C3rCFr03      [10]  489 	jp	00144$
+   0352 C3r9Cr03      [10]  490 	jp	00141$
+   0355 C3rA8r03      [10]  491 	jp	00142$
+   0358 C3rB4r03      [10]  492 	jp	00143$
+                            493 ;../../src/syslib/cprintf.c:107: case 0:
+   035B                     494 00138$:
+                            495 ;../../src/syslib/cprintf.c:108: val = va_arg(ap, short);
+   035B 33            [ 6]  496 	inc	sp
+   035C 33            [ 6]  497 	inc	sp
+   035D C5            [11]  498 	push	bc
+   035E DD 6E F3      [19]  499 	ld	l,-13 (ix)
+   0361 DD 66 F4      [19]  500 	ld	h,-12 (ix)
+   0364 4E            [ 7]  501 	ld	c,(hl)
+   0365 23            [ 6]  502 	inc	hl
+   0366 46            [ 7]  503 	ld	b,(hl)
+   0367 78            [ 4]  504 	ld	a,b
+   0368 17            [ 4]  505 	rla
+   0369 9F            [ 4]  506 	sbc	a, a
+   036A 5F            [ 4]  507 	ld	e,a
+   036B 57            [ 4]  508 	ld	d,a
+                            509 ;../../src/syslib/cprintf.c:109: break;
+   036C 18 67         [12]  510 	jr	00145$
+                            511 ;../../src/syslib/cprintf.c:110: case 1:
+   036E                     512 00139$:
+                            513 ;../../src/syslib/cprintf.c:111: val = va_arg(ap, int);
+   036E 33            [ 6]  514 	inc	sp
+   036F 33            [ 6]  515 	inc	sp
+   0370 C5            [11]  516 	push	bc
+   0371 DD 6E F3      [19]  517 	ld	l,-13 (ix)
+   0374 DD 66 F4      [19]  518 	ld	h,-12 (ix)
+   0377 4E            [ 7]  519 	ld	c,(hl)
+   0378 23            [ 6]  520 	inc	hl
+   0379 46            [ 7]  521 	ld	b,(hl)
+   037A 78            [ 4]  522 	ld	a,b
+   037B 17            [ 4]  523 	rla
+   037C 9F            [ 4]  524 	sbc	a, a
+   037D 5F            [ 4]  525 	ld	e,a
+   037E 57            [ 4]  526 	ld	d,a
+                            527 ;../../src/syslib/cprintf.c:112: break;
+   037F 18 54         [12]  528 	jr	00145$
+                            529 ;../../src/syslib/cprintf.c:113: case 2:
+   0381                     530 00140$:
+                            531 ;../../src/syslib/cprintf.c:114: val = va_arg(ap, long);
+   0381 DD 7E F5      [19]  532 	ld	a,-11 (ix)
+   0384 DD 77 DA      [19]  533 	ld	-38 (ix),a
+   0387 DD 7E F6      [19]  534 	ld	a,-10 (ix)
+   038A DD 77 DB      [19]  535 	ld	-37 (ix),a
+   038D DD 6E F1      [19]  536 	ld	l,-15 (ix)
+   0390 DD 66 F2      [19]  537 	ld	h,-14 (ix)
+   0393 4E            [ 7]  538 	ld	c,(hl)
+   0394 23            [ 6]  539 	inc	hl
+   0395 46            [ 7]  540 	ld	b,(hl)
+   0396 23            [ 6]  541 	inc	hl
+   0397 5E            [ 7]  542 	ld	e,(hl)
+   0398 23            [ 6]  543 	inc	hl
+   0399 56            [ 7]  544 	ld	d,(hl)
+                            545 ;../../src/syslib/cprintf.c:115: break;
+   039A 18 39         [12]  546 	jr	00145$
+                            547 ;../../src/syslib/cprintf.c:116: case 4:
+   039C                     548 00141$:
+                            549 ;../../src/syslib/cprintf.c:117: val = va_arg(ap, unsigned short);
+   039C 33            [ 6]  550 	inc	sp
+   039D 33            [ 6]  551 	inc	sp
+   039E C5            [11]  552 	push	bc
+   039F EB            [ 4]  553 	ex	de,hl
+   03A0 4E            [ 7]  554 	ld	c,(hl)
+   03A1 23            [ 6]  555 	inc	hl
+   03A2 46            [ 7]  556 	ld	b,(hl)
+   03A3 11 00 00      [10]  557 	ld	de,#0x0000
+                            558 ;../../src/syslib/cprintf.c:118: break;
+   03A6 18 2D         [12]  559 	jr	00145$
+                            560 ;../../src/syslib/cprintf.c:119: case 5:
+   03A8                     561 00142$:
+                            562 ;../../src/syslib/cprintf.c:120: val = va_arg(ap, unsigned int);
+   03A8 33            [ 6]  563 	inc	sp
+   03A9 33            [ 6]  564 	inc	sp
+   03AA C5            [11]  565 	push	bc
+   03AB EB            [ 4]  566 	ex	de,hl
+   03AC 4E            [ 7]  567 	ld	c,(hl)
+   03AD 23            [ 6]  568 	inc	hl
+   03AE 46            [ 7]  569 	ld	b,(hl)
+   03AF 11 00 00      [10]  570 	ld	de,#0x0000
+                            571 ;../../src/syslib/cprintf.c:121: break;
+   03B2 18 21         [12]  572 	jr	00145$
+                            573 ;../../src/syslib/cprintf.c:122: case 6:
+   03B4                     574 00143$:
+                            575 ;../../src/syslib/cprintf.c:123: val = va_arg(ap, unsigned long);
+   03B4 DD 7E F5      [19]  576 	ld	a,-11 (ix)
+   03B7 DD 77 DA      [19]  577 	ld	-38 (ix),a
+   03BA DD 7E F6      [19]  578 	ld	a,-10 (ix)
+   03BD DD 77 DB      [19]  579 	ld	-37 (ix),a
+   03C0 DD 6E F1      [19]  580 	ld	l,-15 (ix)
+   03C3 DD 66 F2      [19]  581 	ld	h,-14 (ix)
+   03C6 4E            [ 7]  582 	ld	c,(hl)
+   03C7 23            [ 6]  583 	inc	hl
+   03C8 46            [ 7]  584 	ld	b,(hl)
+   03C9 23            [ 6]  585 	inc	hl
+   03CA 5E            [ 7]  586 	ld	e,(hl)
+   03CB 23            [ 6]  587 	inc	hl
+   03CC 56            [ 7]  588 	ld	d,(hl)
+                            589 ;../../src/syslib/cprintf.c:124: break;
+   03CD 18 06         [12]  590 	jr	00145$
+                            591 ;../../src/syslib/cprintf.c:125: default:
+   03CF                     592 00144$:
+                            593 ;../../src/syslib/cprintf.c:126: val = 0;
+   03CF 01 00 00      [10]  594 	ld	bc,#0x0000
+   03D2 11 00 00      [10]  595 	ld	de,#0x0000
+                            596 ;../../src/syslib/cprintf.c:128: }
+   03D5                     597 00145$:
+                            598 ;../../src/syslib/cprintf.c:129: cp = __numout(val, base, out);
+   03D5 DD 6E FC      [19]  599 	ld	l,-4 (ix)
+   03D8 DD 66 FD      [19]  600 	ld	h,-3 (ix)
+   03DB E5            [11]  601 	push	hl
+   03DC DD 6E E9      [19]  602 	ld	l,-23 (ix)
+   03DF DD 66 EA      [19]  603 	ld	h,-22 (ix)
+   03E2 E5            [11]  604 	push	hl
+   03E3 D5            [11]  605 	push	de
+   03E4 C5            [11]  606 	push	bc
+   03E5 CDr53r05      [17]  607 	call	___numout
+   03E8 F1            [10]  608 	pop	af
+   03E9 F1            [10]  609 	pop	af
+   03EA F1            [10]  610 	pop	af
+   03EB F1            [10]  611 	pop	af
+   03EC EB            [ 4]  612 	ex	de,hl
+                            613 ;../../src/syslib/cprintf.c:130: if (0) {
+   03ED 18 07         [12]  614 	jr	00148$
+                            615 ;../../src/syslib/cprintf.c:131: case 's':
+   03EF                     616 00146$:
+                            617 ;../../src/syslib/cprintf.c:132: cp = va_arg(ap, char *);
+   03EF 33            [ 6]  618 	inc	sp
+   03F0 33            [ 6]  619 	inc	sp
+   03F1 C5            [11]  620 	push	bc
+   03F2 EB            [ 4]  621 	ex	de,hl
+   03F3 5E            [ 7]  622 	ld	e,(hl)
+   03F4 23            [ 6]  623 	inc	hl
+   03F5 56            [ 7]  624 	ld	d,(hl)
+   03F6                     625 00148$:
+                            626 ;../../src/syslib/cprintf.c:134: count--;
+   03F6 DD 6E FE      [19]  627 	ld	l,-2 (ix)
+   03F9 DD 66 FF      [19]  628 	ld	h,-1 (ix)
+   03FC 2B            [ 6]  629 	dec	hl
+                            630 ;../../src/syslib/cprintf.c:135: c = strlen(cp);
+   03FD E5            [11]  631 	push	hl
+   03FE D5            [11]  632 	push	de
+   03FF D5            [11]  633 	push	de
+   0400 CDr00r00      [17]  634 	call	_strlen
+   0403 F1            [10]  635 	pop	af
+   0404 4D            [ 4]  636 	ld	c,l
+   0405 44            [ 4]  637 	ld	b,h
+   0406 D1            [10]  638 	pop	de
+   0407 E1            [10]  639 	pop	hl
+   0408 DD 71 F1      [19]  640 	ld	-15 (ix),c
+   040B DD 70 F2      [19]  641 	ld	-14 (ix),b
+                            642 ;../../src/syslib/cprintf.c:136: if (!maxsize) maxsize = c;
+   040E DD 7E F9      [19]  643 	ld	a,-7 (ix)
+   0411 DD B6 F8      [19]  644 	or	a,-8 (ix)
+   0414 20 0C         [12]  645 	jr	NZ,00150$
+   0416 DD 7E F1      [19]  646 	ld	a,-15 (ix)
+   0419 DD 77 F8      [19]  647 	ld	-8 (ix),a
+   041C DD 7E F2      [19]  648 	ld	a,-14 (ix)
+   041F DD 77 F9      [19]  649 	ld	-7 (ix),a
+   0422                     650 00150$:
+                            651 ;../../src/syslib/cprintf.c:137: if (minsize > 0) {
+   0422 AF            [ 4]  652 	xor	a, a
+   0423 DD BE FA      [19]  653 	cp	a, -6 (ix)
+   0426 DD 9E FB      [19]  654 	sbc	a, -5 (ix)
+   0429 E2r2Er04      [10]  655 	jp	PO, 00350$
+   042C EE 80         [ 7]  656 	xor	a, #0x80
+   042E                     657 00350$:
+   042E F2r76r04      [10]  658 	jp	P,00155$
+                            659 ;../../src/syslib/cprintf.c:138: minsize -= c;
+   0431 DD 7E FA      [19]  660 	ld	a,-6 (ix)
+   0434 DD 96 F1      [19]  661 	sub	a, -15 (ix)
+   0437 4F            [ 4]  662 	ld	c,a
+   0438 DD 7E FB      [19]  663 	ld	a,-5 (ix)
+   043B DD 9E F2      [19]  664 	sbc	a, -14 (ix)
+   043E 47            [ 4]  665 	ld	b,a
+                            666 ;../../src/syslib/cprintf.c:139: while (minsize > 0) {
+   043F DD 75 F5      [19]  667 	ld	-11 (ix),l
+   0442 DD 74 F6      [19]  668 	ld	-10 (ix),h
+   0445                     669 00151$:
+   0445 AF            [ 4]  670 	xor	a, a
+   0446 B9            [ 4]  671 	cp	a, c
+   0447 98            [ 4]  672 	sbc	a, b
+   0448 E2r4Dr04      [10]  673 	jp	PO, 00351$
+   044B EE 80         [ 7]  674 	xor	a, #0x80
+   044D                     675 00351$:
+   044D F2r68r04      [10]  676 	jp	P,00216$
+                            677 ;../../src/syslib/cprintf.c:140: putch(padch);
+   0450 C5            [11]  678 	push	bc
+   0451 D5            [11]  679 	push	de
+   0452 DD 7E E8      [19]  680 	ld	a,-24 (ix)
+   0455 F5            [11]  681 	push	af
+   0456 33            [ 6]  682 	inc	sp
+   0457 CDr00r00      [17]  683 	call	_cpm_putchar
+   045A 33            [ 6]  684 	inc	sp
+   045B D1            [10]  685 	pop	de
+   045C C1            [10]  686 	pop	bc
+                            687 ;../../src/syslib/cprintf.c:141: count++;
+   045D DD 34 F5      [23]  688 	inc	-11 (ix)
+   0460 20 03         [12]  689 	jr	NZ,00352$
+   0462 DD 34 F6      [23]  690 	inc	-10 (ix)
+   0465                     691 00352$:
+                            692 ;../../src/syslib/cprintf.c:142: minsize--;
+   0465 0B            [ 6]  693 	dec	bc
+   0466 18 DD         [12]  694 	jr	00151$
+   0468                     695 00216$:
+   0468 DD 6E F5      [19]  696 	ld	l,-11 (ix)
+   046B DD 66 F6      [19]  697 	ld	h,-10 (ix)
+                            698 ;../../src/syslib/cprintf.c:144: minsize = 0;
+   046E DD 36 FA 00   [19]  699 	ld	-6 (ix),#0x00
+   0472 DD 36 FB 00   [19]  700 	ld	-5 (ix),#0x00
+   0476                     701 00155$:
+                            702 ;../../src/syslib/cprintf.c:146: if (minsize < 0) minsize = -minsize - c;
+   0476 DD CB FB 7E   [20]  703 	bit	7, -5 (ix)
+   047A 28 19         [12]  704 	jr	Z,00211$
+   047C AF            [ 4]  705 	xor	a, a
+   047D DD 96 FA      [19]  706 	sub	a, -6 (ix)
+   0480 4F            [ 4]  707 	ld	c,a
+   0481 3E 00         [ 7]  708 	ld	a, #0x00
+   0483 DD 9E FB      [19]  709 	sbc	a, -5 (ix)
+   0486 47            [ 4]  710 	ld	b,a
+   0487 79            [ 4]  711 	ld	a,c
+   0488 DD 96 F1      [19]  712 	sub	a, -15 (ix)
+   048B DD 77 FA      [19]  713 	ld	-6 (ix),a
+   048E 78            [ 4]  714 	ld	a,b
+   048F DD 9E F2      [19]  715 	sbc	a, -14 (ix)
+   0492 DD 77 FB      [19]  716 	ld	-5 (ix),a
+                            717 ;../../src/syslib/cprintf.c:147: while (*cp && maxsize-- > 0) {
+   0495                     718 00211$:
+   0495 DD 7E F8      [19]  719 	ld	a,-8 (ix)
+   0498 DD 77 F1      [19]  720 	ld	-15 (ix),a
+   049B DD 7E F9      [19]  721 	ld	a,-7 (ix)
+   049E DD 77 F2      [19]  722 	ld	-14 (ix),a
+   04A1 DD 73 F5      [19]  723 	ld	-11 (ix),e
+   04A4 DD 72 F6      [19]  724 	ld	-10 (ix),d
+   04A7 4D            [ 4]  725 	ld	c, l
+   04A8 44            [ 4]  726 	ld	b, h
+   04A9                     727 00159$:
+   04A9 DD 6E F5      [19]  728 	ld	l,-11 (ix)
+   04AC DD 66 F6      [19]  729 	ld	h,-10 (ix)
+   04AF 56            [ 7]  730 	ld	d,(hl)
+   04B0 7A            [ 4]  731 	ld	a,d
+   04B1 B7            [ 4]  732 	or	a, a
+   04B2 28 34         [12]  733 	jr	Z,00217$
+   04B4 DD 5E F1      [19]  734 	ld	e,-15 (ix)
+   04B7 DD 6E F2      [19]  735 	ld	l,-14 (ix)
+   04BA DD 7E F1      [19]  736 	ld	a,-15 (ix)
+   04BD C6 FF         [ 7]  737 	add	a,#0xff
+   04BF DD 77 F1      [19]  738 	ld	-15 (ix),a
+   04C2 DD 7E F2      [19]  739 	ld	a,-14 (ix)
+   04C5 CE FF         [ 7]  740 	adc	a,#0xff
+   04C7 DD 77 F2      [19]  741 	ld	-14 (ix),a
+   04CA AF            [ 4]  742 	xor	a, a
+   04CB BB            [ 4]  743 	cp	a, e
+   04CC 9D            [ 4]  744 	sbc	a, l
+   04CD E2rD2r04      [10]  745 	jp	PO, 00353$
+   04D0 EE 80         [ 7]  746 	xor	a, #0x80
+   04D2                     747 00353$:
+   04D2 F2rE8r04      [10]  748 	jp	P,00217$
+                            749 ;../../src/syslib/cprintf.c:148: putch(*cp++);
+   04D5 DD 34 F5      [23]  750 	inc	-11 (ix)
+   04D8 20 03         [12]  751 	jr	NZ,00354$
+   04DA DD 34 F6      [23]  752 	inc	-10 (ix)
+   04DD                     753 00354$:
+   04DD C5            [11]  754 	push	bc
+   04DE D5            [11]  755 	push	de
+   04DF 33            [ 6]  756 	inc	sp
+   04E0 CDr00r00      [17]  757 	call	_cpm_putchar
+   04E3 33            [ 6]  758 	inc	sp
+   04E4 C1            [10]  759 	pop	bc
+                            760 ;../../src/syslib/cprintf.c:149: count++;
+   04E5 03            [ 6]  761 	inc	bc
+   04E6 18 C1         [12]  762 	jr	00159$
+                            763 ;../../src/syslib/cprintf.c:151: while (minsize > 0) {
+   04E8                     764 00217$:
+   04E8 DD 71 FE      [19]  765 	ld	-2 (ix),c
+   04EB DD 70 FF      [19]  766 	ld	-1 (ix),b
+   04EE DD 71 ED      [19]  767 	ld	-19 (ix),c
+   04F1 DD 70 EE      [19]  768 	ld	-18 (ix),b
+   04F4 DD 4E FA      [19]  769 	ld	c,-6 (ix)
+   04F7 DD 46 FB      [19]  770 	ld	b,-5 (ix)
+   04FA                     771 00162$:
+   04FA AF            [ 4]  772 	xor	a, a
+   04FB B9            [ 4]  773 	cp	a, c
+   04FC 98            [ 4]  774 	sbc	a, b
+   04FD E2r02r05      [10]  775 	jp	PO, 00355$
+   0500 EE 80         [ 7]  776 	xor	a, #0x80
+   0502                     777 00355$:
+   0502 F2r24r00      [10]  778 	jp	P,00171$
+                            779 ;../../src/syslib/cprintf.c:152: putch(' ');
+   0505 C5            [11]  780 	push	bc
+   0506 3E 20         [ 7]  781 	ld	a,#0x20
+   0508 F5            [11]  782 	push	af
+   0509 33            [ 6]  783 	inc	sp
+   050A CDr00r00      [17]  784 	call	_cpm_putchar
+   050D 33            [ 6]  785 	inc	sp
+   050E C1            [10]  786 	pop	bc
+                            787 ;../../src/syslib/cprintf.c:153: count++;
+   050F DD 34 ED      [23]  788 	inc	-19 (ix)
+   0512 20 03         [12]  789 	jr	NZ,00356$
+   0514 DD 34 EE      [23]  790 	inc	-18 (ix)
+   0517                     791 00356$:
+   0517 DD 7E ED      [19]  792 	ld	a,-19 (ix)
+   051A DD 77 FE      [19]  793 	ld	-2 (ix),a
+   051D DD 7E EE      [19]  794 	ld	a,-18 (ix)
+   0520 DD 77 FF      [19]  795 	ld	-1 (ix),a
+                            796 ;../../src/syslib/cprintf.c:154: minsize--;
+   0523 0B            [ 6]  797 	dec	bc
+   0524 18 D4         [12]  798 	jr	00162$
+                            799 ;../../src/syslib/cprintf.c:157: case 'c':
+   0526                     800 00165$:
+                            801 ;../../src/syslib/cprintf.c:158: putch(va_arg(ap, int));
+   0526 33            [ 6]  802 	inc	sp
+   0527 33            [ 6]  803 	inc	sp
+   0528 C5            [11]  804 	push	bc
+   0529 DD 6E F3      [19]  805 	ld	l,-13 (ix)
+   052C DD 66 F4      [19]  806 	ld	h,-12 (ix)
+   052F 4E            [ 7]  807 	ld	c,(hl)
+   0530 23            [ 6]  808 	inc	hl
+   0531 46            [ 7]  809 	ld	b,(hl)
+   0532 41            [ 4]  810 	ld	b,c
+   0533 C5            [11]  811 	push	bc
+   0534 33            [ 6]  812 	inc	sp
+   0535 CDr00r00      [17]  813 	call	_cpm_putchar
+   0538 33            [ 6]  814 	inc	sp
+                            815 ;../../src/syslib/cprintf.c:159: break;
+   0539 C3r24r00      [10]  816 	jp	00171$
+                            817 ;../../src/syslib/cprintf.c:160: default:
+   053C                     818 00166$:
+                            819 ;../../src/syslib/cprintf.c:161: putch(c);
+   053C DD 46 EF      [19]  820 	ld	b,-17 (ix)
+   053F C5            [11]  821 	push	bc
+   0540 33            [ 6]  822 	inc	sp
+   0541 CDr00r00      [17]  823 	call	_cpm_putchar
+   0544 33            [ 6]  824 	inc	sp
+                            825 ;../../src/syslib/cprintf.c:163: }
+   0545 C3r24r00      [10]  826 	jp	00171$
+   0548                     827 00173$:
+                            828 ;../../src/syslib/cprintf.c:167: return count;
+   0548 DD 6E FE      [19]  829 	ld	l,-2 (ix)
+   054B DD 66 FF      [19]  830 	ld	h,-1 (ix)
+   054E DD F9         [10]  831 	ld	sp, ix
+   0550 DD E1         [14]  832 	pop	ix
+   0552 C9            [10]  833 	ret
+                            834 ;../../src/syslib/cprintf.c:176: __numout(long i, int base, unsigned char *out) {
+                            835 ;	---------------------------------
+                            836 ; Function __numout
+                            837 ; ---------------------------------
+   0553                     838 ___numout:
+   0553 DD E5         [15]  839 	push	ix
+   0555 DD 21 00 00   [14]  840 	ld	ix,#0
+   0559 DD 39         [15]  841 	add	ix,sp
+   055B 21 F4 FF      [10]  842 	ld	hl,#-12
+   055E 39            [11]  843 	add	hl,sp
+   055F F9            [ 6]  844 	ld	sp,hl
+                            845 ;../../src/syslib/cprintf.c:178: int flg = 0;
+   0560 21 00 00      [10]  846 	ld	hl,#0x0000
+   0563 E3            [19]  847 	ex	(sp), hl
+                            848 ;../../src/syslib/cprintf.c:181: if (base < 0) {
+   0564 DD CB 09 7E   [20]  849 	bit	7, 9 (ix)
+   0568 28 38         [12]  850 	jr	Z,00104$
+                            851 ;../../src/syslib/cprintf.c:182: base = -base;
+   056A AF            [ 4]  852 	xor	a, a
+   056B DD 96 08      [19]  853 	sub	a, 8 (ix)
+   056E DD 77 08      [19]  854 	ld	8 (ix),a
+   0571 3E 00         [ 7]  855 	ld	a, #0x00
+   0573 DD 9E 09      [19]  856 	sbc	a, 9 (ix)
+   0576 DD 77 09      [19]  857 	ld	9 (ix),a
+                            858 ;../../src/syslib/cprintf.c:183: if (i < 0) {
+   0579 DD CB 07 7E   [20]  859 	bit	7, 7 (ix)
+   057D 28 23         [12]  860 	jr	Z,00104$
+                            861 ;../../src/syslib/cprintf.c:184: flg = 1;
+   057F 21 01 00      [10]  862 	ld	hl,#0x0001
+   0582 E3            [19]  863 	ex	(sp), hl
+                            864 ;../../src/syslib/cprintf.c:185: i = -i;
+   0583 AF            [ 4]  865 	xor	a, a
+   0584 DD 96 04      [19]  866 	sub	a, 4 (ix)
+   0587 DD 77 04      [19]  867 	ld	4 (ix),a
+   058A 3E 00         [ 7]  868 	ld	a, #0x00
+   058C DD 9E 05      [19]  869 	sbc	a, 5 (ix)
+   058F DD 77 05      [19]  870 	ld	5 (ix),a
+   0592 3E 00         [ 7]  871 	ld	a, #0x00
+   0594 DD 9E 06      [19]  872 	sbc	a, 6 (ix)
+   0597 DD 77 06      [19]  873 	ld	6 (ix),a
+   059A 3E 00         [ 7]  874 	ld	a, #0x00
+   059C DD 9E 07      [19]  875 	sbc	a, 7 (ix)
+   059F DD 77 07      [19]  876 	ld	7 (ix),a
+   05A2                     877 00104$:
+                            878 ;../../src/syslib/cprintf.c:188: val = i;
+   05A2 21 02 00      [10]  879 	ld	hl, #2
+   05A5 39            [11]  880 	add	hl, sp
+   05A6 EB            [ 4]  881 	ex	de, hl
+   05A7 21 10 00      [10]  882 	ld	hl, #16
+   05AA 39            [11]  883 	add	hl, sp
+   05AB 01 04 00      [10]  884 	ld	bc, #4
+   05AE ED B0         [21]  885 	ldir
+                            886 ;../../src/syslib/cprintf.c:190: out[NUMLTH] = '\0';
+   05B0 DD 7E 0A      [19]  887 	ld	a,10 (ix)
+   05B3 C6 0B         [ 7]  888 	add	a, #0x0b
+   05B5 4F            [ 4]  889 	ld	c,a
+   05B6 DD 7E 0B      [19]  890 	ld	a,11 (ix)
+   05B9 CE 00         [ 7]  891 	adc	a, #0x00
+   05BB 47            [ 4]  892 	ld	b,a
+   05BC AF            [ 4]  893 	xor	a, a
+   05BD 02            [ 7]  894 	ld	(bc),a
+                            895 ;../../src/syslib/cprintf.c:192: do {
+   05BE 01 0A 00      [10]  896 	ld	bc,#0x000a
+   05C1                     897 00105$:
+                            898 ;../../src/syslib/cprintf.c:194: out[n] = nstring[val % base];
+   05C1 DD 7E 0A      [19]  899 	ld	a,10 (ix)
+   05C4 81            [ 4]  900 	add	a, c
+   05C5 DD 77 FE      [19]  901 	ld	-2 (ix),a
+   05C8 DD 7E 0B      [19]  902 	ld	a,11 (ix)
+   05CB 88            [ 4]  903 	adc	a, b
+   05CC DD 77 FF      [19]  904 	ld	-1 (ix),a
+   05CF DD 7E 08      [19]  905 	ld	a,8 (ix)
+   05D2 DD 77 FA      [19]  906 	ld	-6 (ix),a
+   05D5 DD 7E 09      [19]  907 	ld	a,9 (ix)
+   05D8 DD 77 FB      [19]  908 	ld	-5 (ix),a
+   05DB DD 7E 09      [19]  909 	ld	a,9 (ix)
+   05DE 17            [ 4]  910 	rla
+   05DF 9F            [ 4]  911 	sbc	a, a
+   05E0 DD 77 FC      [19]  912 	ld	-4 (ix),a
+   05E3 DD 77 FD      [19]  913 	ld	-3 (ix),a
+   05E6 C5            [11]  914 	push	bc
+   05E7 DD 6E FC      [19]  915 	ld	l,-4 (ix)
+   05EA DD 66 FD      [19]  916 	ld	h,-3 (ix)
+   05ED E5            [11]  917 	push	hl
+   05EE DD 6E FA      [19]  918 	ld	l,-6 (ix)
+   05F1 DD 66 FB      [19]  919 	ld	h,-5 (ix)
+   05F4 E5            [11]  920 	push	hl
+   05F5 DD 6E F8      [19]  921 	ld	l,-8 (ix)
+   05F8 DD 66 F9      [19]  922 	ld	h,-7 (ix)
+   05FB E5            [11]  923 	push	hl
+   05FC DD 6E F6      [19]  924 	ld	l,-10 (ix)
+   05FF DD 66 F7      [19]  925 	ld	h,-9 (ix)
+   0602 E5            [11]  926 	push	hl
+   0603 CDr00r00      [17]  927 	call	__modulong
+   0606 F1            [10]  928 	pop	af
+   0607 F1            [10]  929 	pop	af
+   0608 F1            [10]  930 	pop	af
+   0609 F1            [10]  931 	pop	af
+   060A EB            [ 4]  932 	ex	de, hl
+   060B C1            [10]  933 	pop	bc
+   060C FD 21r80r06   [14]  934 	ld	iy,#_nstring
+   0610 FD 19         [15]  935 	add	iy, de
+   0612 FD 5E 00      [19]  936 	ld	e, 0 (iy)
+   0615 DD 6E FE      [19]  937 	ld	l,-2 (ix)
+   0618 DD 66 FF      [19]  938 	ld	h,-1 (ix)
+   061B 73            [ 7]  939 	ld	(hl),e
+                            940 ;../../src/syslib/cprintf.c:195: val /= base;
+   061C C5            [11]  941 	push	bc
+   061D DD 6E FC      [19]  942 	ld	l,-4 (ix)
+   0620 DD 66 FD      [19]  943 	ld	h,-3 (ix)
+   0623 E5            [11]  944 	push	hl
+   0624 DD 6E FA      [19]  945 	ld	l,-6 (ix)
+   0627 DD 66 FB      [19]  946 	ld	h,-5 (ix)
+   062A E5            [11]  947 	push	hl
+   062B DD 6E F8      [19]  948 	ld	l,-8 (ix)
+   062E DD 66 F9      [19]  949 	ld	h,-7 (ix)
+   0631 E5            [11]  950 	push	hl
+   0632 DD 6E F6      [19]  951 	ld	l,-10 (ix)
+   0635 DD 66 F7      [19]  952 	ld	h,-9 (ix)
+   0638 E5            [11]  953 	push	hl
+   0639 CDr00r00      [17]  954 	call	__divulong
+   063C F1            [10]  955 	pop	af
+   063D F1            [10]  956 	pop	af
+   063E F1            [10]  957 	pop	af
+   063F F1            [10]  958 	pop	af
+   0640 C1            [10]  959 	pop	bc
+   0641 DD 75 F6      [19]  960 	ld	-10 (ix),l
+   0644 DD 74 F7      [19]  961 	ld	-9 (ix),h
+   0647 DD 73 F8      [19]  962 	ld	-8 (ix),e
+   064A DD 72 F9      [19]  963 	ld	-7 (ix),d
+                            964 ;../../src/syslib/cprintf.c:196: --n;
+   064D 0B            [ 6]  965 	dec	bc
+                            966 ;../../src/syslib/cprintf.c:201: } while (val);
+   064E DD 7E F9      [19]  967 	ld	a,-7 (ix)
+   0651 DD B6 F8      [19]  968 	or	a, -8 (ix)
+   0654 DD B6 F7      [19]  969 	or	a, -9 (ix)
+   0657 DD B6 F6      [19]  970 	or	a,-10 (ix)
+   065A C2rC1r05      [10]  971 	jp	NZ,00105$
+                            972 ;../../src/syslib/cprintf.c:202: if (flg) out[n--] = '-';
+   065D 59            [ 4]  973 	ld	e, c
+   065E 50            [ 4]  974 	ld	d, b
+   065F DD 7E F5      [19]  975 	ld	a,-11 (ix)
+   0662 DD B6 F4      [19]  976 	or	a,-12 (ix)
+   0665 28 0C         [12]  977 	jr	Z,00109$
+   0667 59            [ 4]  978 	ld	e,c
+   0668 50            [ 4]  979 	ld	d,b
+   0669 1B            [ 6]  980 	dec	de
+   066A DD 6E 0A      [19]  981 	ld	l,10 (ix)
+   066D DD 66 0B      [19]  982 	ld	h,11 (ix)
+   0670 09            [11]  983 	add	hl,bc
+   0671 36 2D         [10]  984 	ld	(hl),#0x2d
+   0673                     985 00109$:
+                            986 ;../../src/syslib/cprintf.c:204: return &out[n + 1];
+   0673 13            [ 6]  987 	inc	de
+   0674 DD 6E 0A      [19]  988 	ld	l,10 (ix)
+   0677 DD 66 0B      [19]  989 	ld	h,11 (ix)
+   067A 19            [11]  990 	add	hl,de
+   067B DD F9         [10]  991 	ld	sp, ix
+   067D DD E1         [14]  992 	pop	ix
+   067F C9            [10]  993 	ret
+   0680                     994 _nstring:
+   0680 30 31 32 33 34 35   995 	.ascii "0123456789ABCDEF"
+        36 37 38 39 41 42
+        43 44 45 46
+   0690 00                  996 	.db 0x00
+                            997 	.area _CODE
+                            998 	.area _INITIALIZER
+                            999 	.area _CABS (ABS)

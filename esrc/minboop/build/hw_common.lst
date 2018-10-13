@@ -1,0 +1,164 @@
+                              1 ;--------------------------------------------------------
+                              2 ; File Created by SDCC : free open source ANSI-C Compiler
+                              3 ; Version 3.6.0 #9615 (Mac OS X x86_64)
+                              4 ;--------------------------------------------------------
+                              5 	.module hw_common
+                              6 	.optsdcc -mz80
+                              7 	
+                              8 ;--------------------------------------------------------
+                              9 ; Public variables in this module
+                             10 ;--------------------------------------------------------
+                             11 	.globl _hw_outp
+                             12 	.globl _hw_inp
+                             13 	.globl _hw_smallDelay
+                             14 	.globl _hw_setupInterrupts
+                             15 	.globl _hw_enableInterrupts
+                             16 	.globl _hw_addInterruptHandler
+                             17 	.globl _empty_ISR
+                             18 ;--------------------------------------------------------
+                             19 ; special function registers
+                             20 ;--------------------------------------------------------
+                             21 ;--------------------------------------------------------
+                             22 ; ram data
+                             23 ;--------------------------------------------------------
+                             24 	.area _DATA
+                             25 ;--------------------------------------------------------
+                             26 ; ram data
+                             27 ;--------------------------------------------------------
+                             28 	.area _INITIALIZED
+                             29 ;--------------------------------------------------------
+                             30 ; absolute external ram data
+                             31 ;--------------------------------------------------------
+                             32 	.area _DABS (ABS)
+                             33 ;--------------------------------------------------------
+                             34 ; global & static initialisations
+                             35 ;--------------------------------------------------------
+                             36 	.area _HOME
+                             37 	.area _GSINIT
+                             38 	.area _GSFINAL
+                             39 	.area _GSINIT
+                             40 ;--------------------------------------------------------
+                             41 ; Home
+                             42 ;--------------------------------------------------------
+                             43 	.area _HOME
+                             44 	.area _HOME
+                             45 ;--------------------------------------------------------
+                             46 ; code
+                             47 ;--------------------------------------------------------
+                             48 	.area _CODE
+                             49 ;../../src/hw/common/hw_common.c:7: void hw_outp(uint8_t port, uint8_t data) __naked {
+                             50 ;	---------------------------------
+                             51 ; Function hw_outp
+                             52 ; ---------------------------------
+   0000                      53 _hw_outp::
+                             54 ;../../src/hw/common/hw_common.c:26: __endasm;
+   0000 21 03 00      [10]   55 	ld	hl, #3
+   0003 39            [11]   56 	add	hl, sp
+   0004 7E            [ 7]   57 	ld	a, (hl)
+   0005 21 02 00      [10]   58 	ld	hl, #2
+   0008 39            [11]   59 	add	hl, sp
+   0009 C5            [11]   60 	push	bc
+   000A 4E            [ 7]   61 	ld	c, (hl)
+   000B ED 79         [12]   62 	out	(c), a
+   000D C1            [10]   63 	pop	bc
+   000E C9            [10]   64 	ret
+                             65 ;../../src/hw/common/hw_common.c:29: uint8_t hw_inp(uint8_t port) __naked {
+                             66 ;	---------------------------------
+                             67 ; Function hw_inp
+                             68 ; ---------------------------------
+   000F                      69 _hw_inp::
+                             70 ;../../src/hw/common/hw_common.c:44: __endasm;
+   000F 21 02 00      [10]   71 	ld	hl, #2
+   0012 39            [11]   72 	add	hl, sp
+   0013 C5            [11]   73 	push	bc
+   0014 4E            [ 7]   74 	ld	c, (hl)
+   0015 ED 68         [12]   75 	in	l,(c)
+   0017 C1            [10]   76 	pop	bc
+   0018 C9            [10]   77 	ret
+                             78 ;../../src/hw/common/hw_common.c:47: void hw_smallDelay(uint8_t delay) {
+                             79 ;	---------------------------------
+                             80 ; Function hw_smallDelay
+                             81 ; ---------------------------------
+   0019                      82 _hw_smallDelay::
+                             83 ;../../src/hw/common/hw_common.c:48: while(delay--) {
+   0019 FD 21 02 00   [14]   84 	ld	iy,#2
+   001D FD 39         [15]   85 	add	iy,sp
+   001F FD 4E 00      [19]   86 	ld	c,0 (iy)
+   0022                      87 00101$:
+   0022 41            [ 4]   88 	ld	b,c
+   0023 0D            [ 4]   89 	dec	c
+   0024 78            [ 4]   90 	ld	a,b
+   0025 B7            [ 4]   91 	or	a, a
+   0026 C8            [11]   92 	ret	Z
+                             93 ;../../src/hw/common/hw_common.c:51: __endasm;
+   0027 00            [ 4]   94 	nop
+   0028 18 F8         [12]   95 	jr	00101$
+                             96 ;../../src/hw/common/hw_common.c:55: void hw_setupInterrupts(void) {
+                             97 ;	---------------------------------
+                             98 ; Function hw_setupInterrupts
+                             99 ; ---------------------------------
+   002A                     100 _hw_setupInterrupts::
+                            101 ;../../src/hw/common/hw_common.c:68: __endasm;
+   002A F3            [ 4]  102 	di
+   002B F5            [11]  103 	push	af
+   002C 3E 7F         [ 7]  104 	ld	a,#0x7F
+   002E ED 47         [ 9]  105 	ld	I,a
+   0030 F1            [10]  106 	pop	af
+                            107 ;../../src/hw/common/hw_common.c:71: for(idx = 0; idx < 128; idx++) vec_table[idx] = (uint16_t)empty_ISR;
+   0031 0E 00         [ 7]  108 	ld	c,#0x00
+   0033                     109 00102$:
+   0033 69            [ 4]  110 	ld	l,c
+   0034 26 00         [ 7]  111 	ld	h,#0x00
+   0036 29            [11]  112 	add	hl, hl
+   0037 11 00 7F      [10]  113 	ld	de,#0x7f00
+   003A 19            [11]  114 	add	hl,de
+   003B 11r6Er00      [10]  115 	ld	de,#_empty_ISR
+   003E 73            [ 7]  116 	ld	(hl),e
+   003F 23            [ 6]  117 	inc	hl
+   0040 72            [ 7]  118 	ld	(hl),d
+   0041 0C            [ 4]  119 	inc	c
+   0042 79            [ 4]  120 	ld	a,c
+   0043 D6 80         [ 7]  121 	sub	a, #0x80
+   0045 38 EC         [12]  122 	jr	C,00102$
+   0047 C9            [10]  123 	ret
+                            124 ;../../src/hw/common/hw_common.c:74: void hw_enableInterrupts(void) {
+                            125 ;	---------------------------------
+                            126 ; Function hw_enableInterrupts
+                            127 ; ---------------------------------
+   0048                     128 _hw_enableInterrupts::
+                            129 ;../../src/hw/common/hw_common.c:78: __endasm;
+   0048 ED 5E         [ 8]  130 	im	2
+   004A FB            [ 4]  131 	ei
+   004B C9            [10]  132 	ret
+                            133 ;../../src/hw/common/hw_common.c:81: void hw_addInterruptHandler(uint8_t handNo, uint16_t addr) {
+                            134 ;	---------------------------------
+                            135 ; Function hw_addInterruptHandler
+                            136 ; ---------------------------------
+   004C                     137 _hw_addInterruptHandler::
+                            138 ;../../src/hw/common/hw_common.c:84: vec_table[handNo >> 1] = addr;
+   004C FD 21 02 00   [14]  139 	ld	iy,#2
+   0050 FD 39         [15]  140 	add	iy,sp
+   0052 FD 6E 00      [19]  141 	ld	l,0 (iy)
+   0055 CB 3D         [ 8]  142 	srl	l
+   0057 26 00         [ 7]  143 	ld	h,#0x00
+   0059 29            [11]  144 	add	hl, hl
+   005A 01 00 7F      [10]  145 	ld	bc,#0x7f00
+   005D 09            [11]  146 	add	hl,bc
+   005E FD 21 03 00   [14]  147 	ld	iy,#3
+   0062 FD 39         [15]  148 	add	iy,sp
+   0064 FD 7E 00      [19]  149 	ld	a,0 (iy)
+   0067 77            [ 7]  150 	ld	(hl),a
+   0068 23            [ 6]  151 	inc	hl
+   0069 FD 7E 01      [19]  152 	ld	a,1 (iy)
+   006C 77            [ 7]  153 	ld	(hl),a
+   006D C9            [10]  154 	ret
+                            155 ;../../src/hw/common/hw_common.c:87: void empty_ISR(void) __naked {
+                            156 ;	---------------------------------
+                            157 ; Function empty_ISR
+                            158 ; ---------------------------------
+   006E                     159 _empty_ISR::
+                            160 ;../../src/hw/common/hw_common.c:90: __endasm;
+   006E 76            [ 4]  161 	halt
+                            162 	.area _CODE
+                            163 	.area _INITIALIZER
+                            164 	.area _CABS (ABS)

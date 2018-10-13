@@ -1,0 +1,50 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 1.
+Hexadecimal [16-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =  2710 L
+    .__.ABS.                                                    =  0000 G
+    .__.CPU.                                                    =  0000 L
+    .__.H$L.                                                    =  0000 L
+  7 __xinit__reg3_status                                           0002 R
+  7 __xinit__reg5_status                                           0000 R
+  0 _chA_intHandler_rx_charAvail                                   042A GR
+  0 _chA_intHandler_rx_specialCond                                 0421 GR
+  0 _chA_intHandler_statChng                                       0486 GR
+  0 _chB_intHandler_rx_charAvail                                   0498 GR
+  0 _chB_intHandler_rx_specialCond                                 048F GR
+  0 _chB_intHandler_statChng                                       04F4 GR
+  1 _ch_buf                                                        0000 R
+  0 _ctc_init                                                      003B GR
+    _hw_addInterruptHandler                                        **** GX
+    _hw_inp                                                        **** GX
+    _hw_outp                                                       **** GX
+  0 _modprn_getBreakStatus                                         034F GR
+  0 _modprn_getch                                                  0200 GR
+  0 _modprn_getchBuf                                               028A GR
+  0 _modprn_int_getch                                              03B6 GR
+  0 _modprn_outch                                                  01C7 GR
+  0 _modprn_sendBreak                                              036B GR
+  0 _modprn_setupInterrupts                                        0120 GR
+  2 _reg3_status                                                   0002 R
+  2 _reg5_status                                                   0000 R
+  0 _setup_modprn                                                  0000 GR
+  0 _sio_init                                                      005D GR
+
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
+Hexadecimal [16-Bits]
+
+Area Table
+
+   0 _CODE                                      size  4FD   flags    0
+   1 _DATA                                      size   24   flags    0
+   2 _INITIALIZED                               size    4   flags    0
+   3 _DABS                                      size    0   flags    8
+   4 _HOME                                      size    0   flags    0
+   5 _GSINIT                                    size    0   flags    0
+   6 _GSFINAL                                   size    0   flags    0
+   7 _INITIALIZER                               size    4   flags    0
+   8 _CABS                                      size    0   flags    8
+

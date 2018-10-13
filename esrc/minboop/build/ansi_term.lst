@@ -1,0 +1,880 @@
+                              1 ;--------------------------------------------------------
+                              2 ; File Created by SDCC : free open source ANSI-C Compiler
+                              3 ; Version 3.6.0 #9615 (Mac OS X x86_64)
+                              4 ;--------------------------------------------------------
+                              5 	.module ansi_term
+                              6 	.optsdcc -mz80
+                              7 	
+                              8 ;--------------------------------------------------------
+                              9 ; Public variables in this module
+                             10 ;--------------------------------------------------------
+                             11 	.globl _cpm_putchar
+                             12 	.globl _term_ANSIMode
+                             13 	.globl _term_ANSILineMode
+                             14 	.globl _term_ANSIDirectCursorAddr
+                             15 	.globl _term_ANSICursorMove
+                             16 	.globl _term_ANSIClrLine
+                             17 	.globl _term_ANSIClrScrn
+                             18 	.globl _term_ANSISetParam
+                             19 	.globl _term_ANSISaveCursor
+                             20 	.globl _term_ANSIRestoreCursor
+                             21 	.globl _term_ANSIIndex
+                             22 	.globl _term_ANSIReverseIndex
+                             23 	.globl _term_sendCommand
+                             24 ;--------------------------------------------------------
+                             25 ; special function registers
+                             26 ;--------------------------------------------------------
+                             27 ;--------------------------------------------------------
+                             28 ; ram data
+                             29 ;--------------------------------------------------------
+                             30 	.area _DATA
+                             31 ;--------------------------------------------------------
+                             32 ; ram data
+                             33 ;--------------------------------------------------------
+                             34 	.area _INITIALIZED
+                             35 ;--------------------------------------------------------
+                             36 ; absolute external ram data
+                             37 ;--------------------------------------------------------
+                             38 	.area _DABS (ABS)
+                             39 ;--------------------------------------------------------
+                             40 ; global & static initialisations
+                             41 ;--------------------------------------------------------
+                             42 	.area _HOME
+                             43 	.area _GSINIT
+                             44 	.area _GSFINAL
+                             45 	.area _GSINIT
+                             46 ;--------------------------------------------------------
+                             47 ; Home
+                             48 ;--------------------------------------------------------
+                             49 	.area _HOME
+                             50 	.area _HOME
+                             51 ;--------------------------------------------------------
+                             52 ; code
+                             53 ;--------------------------------------------------------
+                             54 	.area _CODE
+                             55 ;../../src/syslib/ansi_term.c:25: void term_ANSIMode(void) {
+                             56 ;	---------------------------------
+                             57 ; Function term_ANSIMode
+                             58 ; ---------------------------------
+   0000                      59 _term_ANSIMode::
+                             60 ;../../src/syslib/ansi_term.c:26: term_sendCommand(VT100_ANSI_CMD);
+   0000 21r09r00      [10]   61 	ld	hl,#___str_0
+   0003 E5            [11]   62 	push	hl
+   0004 CDr21r04      [17]   63 	call	_term_sendCommand
+   0007 F1            [10]   64 	pop	af
+   0008 C9            [10]   65 	ret
+   0009                      66 ___str_0:
+   0009 3C                   67 	.ascii "<"
+   000A 00                   68 	.db 0x00
+                             69 ;../../src/syslib/ansi_term.c:29: void term_ANSILineMode(LineMode lm) {
+                             70 ;	---------------------------------
+                             71 ; Function term_ANSILineMode
+                             72 ; ---------------------------------
+   000B                      73 _term_ANSILineMode::
+   000B DD E5         [15]   74 	push	ix
+   000D DD 21 00 00   [14]   75 	ld	ix,#0
+   0011 DD 39         [15]   76 	add	ix,sp
+   0013 F5            [11]   77 	push	af
+   0014 3B            [ 6]   78 	dec	sp
+                             79 ;../../src/syslib/ansi_term.c:30: char cmd[] = ANSI_LM;
+   0015 21 00 00      [10]   80 	ld	hl,#0x0000
+   0018 39            [11]   81 	add	hl,sp
+   0019 4D            [ 4]   82 	ld	c,l
+   001A 44            [ 4]   83 	ld	b,h
+   001B 36 23         [10]   84 	ld	(hl),#0x23
+   001D 59            [ 4]   85 	ld	e, c
+   001E 50            [ 4]   86 	ld	d, b
+   001F 13            [ 6]   87 	inc	de
+   0020 3E 5F         [ 7]   88 	ld	a,#0x5f
+   0022 12            [ 7]   89 	ld	(de),a
+   0023 69            [ 4]   90 	ld	l, c
+   0024 60            [ 4]   91 	ld	h, b
+   0025 23            [ 6]   92 	inc	hl
+   0026 23            [ 6]   93 	inc	hl
+   0027 36 00         [10]   94 	ld	(hl),#0x00
+                             95 ;../../src/syslib/ansi_term.c:32: switch (lm) {
+   0029 3E 03         [ 7]   96 	ld	a,#0x03
+   002B DD 96 04      [19]   97 	sub	a, 4 (ix)
+   002E 38 24         [12]   98 	jr	C,00105$
+   0030 D5            [11]   99 	push	de
+   0031 DD 5E 04      [19]  100 	ld	e,4 (ix)
+   0034 16 00         [ 7]  101 	ld	d,#0x00
+   0036 21r3Dr00      [10]  102 	ld	hl,#00113$
+   0039 19            [11]  103 	add	hl,de
+   003A 19            [11]  104 	add	hl,de
+                            105 ;../../src/syslib/ansi_term.c:33: case lm_doubleh_top:
+   003B D1            [10]  106 	pop	de
+   003C E9            [ 4]  107 	jp	(hl)
+   003D                     108 00113$:
+   003D 18 06         [12]  109 	jr	00101$
+   003F 18 09         [12]  110 	jr	00102$
+   0041 18 0C         [12]  111 	jr	00103$
+   0043 18 0F         [12]  112 	jr	00104$
+   0045                     113 00101$:
+                            114 ;../../src/syslib/ansi_term.c:34: cmd[1] = '3';
+   0045 3E 33         [ 7]  115 	ld	a,#0x33
+   0047 12            [ 7]  116 	ld	(de),a
+                            117 ;../../src/syslib/ansi_term.c:35: break;
+   0048 18 0D         [12]  118 	jr	00106$
+                            119 ;../../src/syslib/ansi_term.c:36: case lm_doubleh_bottom:
+   004A                     120 00102$:
+                            121 ;../../src/syslib/ansi_term.c:37: cmd[1] = '4';
+   004A 3E 34         [ 7]  122 	ld	a,#0x34
+   004C 12            [ 7]  123 	ld	(de),a
+                            124 ;../../src/syslib/ansi_term.c:38: break;
+   004D 18 08         [12]  125 	jr	00106$
+                            126 ;../../src/syslib/ansi_term.c:39: case lm_singlew_singleh:
+   004F                     127 00103$:
+                            128 ;../../src/syslib/ansi_term.c:40: cmd[1] = '5';
+   004F 3E 35         [ 7]  129 	ld	a,#0x35
+   0051 12            [ 7]  130 	ld	(de),a
+                            131 ;../../src/syslib/ansi_term.c:41: break;
+   0052 18 03         [12]  132 	jr	00106$
+                            133 ;../../src/syslib/ansi_term.c:42: case lm_doublew_singleh:
+   0054                     134 00104$:
+                            135 ;../../src/syslib/ansi_term.c:43: default:
+   0054                     136 00105$:
+                            137 ;../../src/syslib/ansi_term.c:44: cmd[1] = '6';
+   0054 3E 36         [ 7]  138 	ld	a,#0x36
+   0056 12            [ 7]  139 	ld	(de),a
+                            140 ;../../src/syslib/ansi_term.c:46: }
+   0057                     141 00106$:
+                            142 ;../../src/syslib/ansi_term.c:48: term_sendCommand(cmd);
+   0057 C5            [11]  143 	push	bc
+   0058 CDr21r04      [17]  144 	call	_term_sendCommand
+   005B DD F9         [10]  145 	ld	sp,ix
+   005D DD E1         [14]  146 	pop	ix
+   005F C9            [10]  147 	ret
+                            148 ;../../src/syslib/ansi_term.c:51: void term_ANSIDirectCursorAddr(uint8_t column, uint8_t line) {
+                            149 ;	---------------------------------
+                            150 ; Function term_ANSIDirectCursorAddr
+                            151 ; ---------------------------------
+   0060                     152 _term_ANSIDirectCursorAddr::
+   0060 DD E5         [15]  153 	push	ix
+   0062 DD 21 00 00   [14]  154 	ld	ix,#0
+   0066 DD 39         [15]  155 	add	ix,sp
+   0068 21 EB FF      [10]  156 	ld	hl,#-21
+   006B 39            [11]  157 	add	hl,sp
+   006C F9            [ 6]  158 	ld	sp,hl
+                            159 ;../../src/syslib/ansi_term.c:52: char cmd[] = ANSI_CURDIRADR;
+   006D 21 00 00      [10]  160 	ld	hl,#0x0000
+   0070 39            [11]  161 	add	hl,sp
+   0071 4D            [ 4]  162 	ld	c,l
+   0072 44            [ 4]  163 	ld	b,h
+   0073 36 5B         [10]  164 	ld	(hl),#0x5b
+   0075 21 01 00      [10]  165 	ld	hl,#0x0001
+   0078 09            [11]  166 	add	hl,bc
+   0079 DD 75 FE      [19]  167 	ld	-2 (ix),l
+   007C DD 74 FF      [19]  168 	ld	-1 (ix),h
+   007F DD 6E FE      [19]  169 	ld	l,-2 (ix)
+   0082 DD 66 FF      [19]  170 	ld	h,-1 (ix)
+   0085 36 5F         [10]  171 	ld	(hl),#0x5f
+   0087 21 02 00      [10]  172 	ld	hl,#0x0002
+   008A 09            [11]  173 	add	hl,bc
+   008B DD 75 FC      [19]  174 	ld	-4 (ix),l
+   008E DD 74 FD      [19]  175 	ld	-3 (ix),h
+   0091 DD 6E FC      [19]  176 	ld	l,-4 (ix)
+   0094 DD 66 FD      [19]  177 	ld	h,-3 (ix)
+   0097 36 5F         [10]  178 	ld	(hl),#0x5f
+   0099 21 03 00      [10]  179 	ld	hl,#0x0003
+   009C 09            [11]  180 	add	hl,bc
+   009D DD 75 FA      [19]  181 	ld	-6 (ix),l
+   00A0 DD 74 FB      [19]  182 	ld	-5 (ix),h
+   00A3 DD 6E FA      [19]  183 	ld	l,-6 (ix)
+   00A6 DD 66 FB      [19]  184 	ld	h,-5 (ix)
+   00A9 36 5F         [10]  185 	ld	(hl),#0x5f
+   00AB 21 04 00      [10]  186 	ld	hl,#0x0004
+   00AE 09            [11]  187 	add	hl,bc
+   00AF 36 3B         [10]  188 	ld	(hl),#0x3b
+   00B1 21 05 00      [10]  189 	ld	hl,#0x0005
+   00B4 09            [11]  190 	add	hl,bc
+   00B5 EB            [ 4]  191 	ex	de,hl
+   00B6 3E 5F         [ 7]  192 	ld	a,#0x5f
+   00B8 12            [ 7]  193 	ld	(de),a
+   00B9 21 06 00      [10]  194 	ld	hl,#0x0006
+   00BC 09            [11]  195 	add	hl,bc
+   00BD DD 75 F8      [19]  196 	ld	-8 (ix),l
+   00C0 DD 74 F9      [19]  197 	ld	-7 (ix),h
+   00C3 DD 6E F8      [19]  198 	ld	l,-8 (ix)
+   00C6 DD 66 F9      [19]  199 	ld	h,-7 (ix)
+   00C9 36 5F         [10]  200 	ld	(hl),#0x5f
+   00CB 21 07 00      [10]  201 	ld	hl,#0x0007
+   00CE 09            [11]  202 	add	hl,bc
+   00CF DD 75 F6      [19]  203 	ld	-10 (ix),l
+   00D2 DD 74 F7      [19]  204 	ld	-9 (ix),h
+   00D5 DD 6E F6      [19]  205 	ld	l,-10 (ix)
+   00D8 DD 66 F7      [19]  206 	ld	h,-9 (ix)
+   00DB 36 5F         [10]  207 	ld	(hl),#0x5f
+   00DD 21 08 00      [10]  208 	ld	hl,#0x0008
+   00E0 09            [11]  209 	add	hl,bc
+   00E1 36 48         [10]  210 	ld	(hl),#0x48
+   00E3 21 09 00      [10]  211 	ld	hl,#0x0009
+   00E6 09            [11]  212 	add	hl,bc
+   00E7 36 00         [10]  213 	ld	(hl),#0x00
+                            214 ;../../src/syslib/ansi_term.c:55: cmd[5] = (column / 100) + 0x30;
+   00E9 C5            [11]  215 	push	bc
+   00EA D5            [11]  216 	push	de
+   00EB 3E 64         [ 7]  217 	ld	a,#0x64
+   00ED F5            [11]  218 	push	af
+   00EE 33            [ 6]  219 	inc	sp
+   00EF DD 7E 04      [19]  220 	ld	a,4 (ix)
+   00F2 F5            [11]  221 	push	af
+   00F3 33            [ 6]  222 	inc	sp
+   00F4 CDr00r00      [17]  223 	call	__divuchar
+   00F7 F1            [10]  224 	pop	af
+   00F8 DD 75 F5      [19]  225 	ld	-11 (ix),l
+   00FB D1            [10]  226 	pop	de
+   00FC C1            [10]  227 	pop	bc
+   00FD DD 7E F5      [19]  228 	ld	a,-11 (ix)
+   0100 C6 30         [ 7]  229 	add	a, #0x30
+   0102 12            [ 7]  230 	ld	(de),a
+                            231 ;../../src/syslib/ansi_term.c:56: column -= (100 * (column / 100));
+   0103 DD 6E F5      [19]  232 	ld	l,-11 (ix)
+   0106 5D            [ 4]  233 	ld	e,l
+   0107 29            [11]  234 	add	hl, hl
+   0108 19            [11]  235 	add	hl, de
+   0109 29            [11]  236 	add	hl, hl
+   010A 29            [11]  237 	add	hl, hl
+   010B 29            [11]  238 	add	hl, hl
+   010C 19            [11]  239 	add	hl, de
+   010D 29            [11]  240 	add	hl, hl
+   010E 29            [11]  241 	add	hl, hl
+   010F DD 7E 04      [19]  242 	ld	a,4 (ix)
+   0112 95            [ 4]  243 	sub	a, l
+   0113 DD 77 04      [19]  244 	ld	4 (ix),a
+                            245 ;../../src/syslib/ansi_term.c:57: cmd[6] = (column / 10) + 0x30;
+   0116 C5            [11]  246 	push	bc
+   0117 3E 0A         [ 7]  247 	ld	a,#0x0a
+   0119 F5            [11]  248 	push	af
+   011A 33            [ 6]  249 	inc	sp
+   011B DD 7E 04      [19]  250 	ld	a,4 (ix)
+   011E F5            [11]  251 	push	af
+   011F 33            [ 6]  252 	inc	sp
+   0120 CDr00r00      [17]  253 	call	__divuchar
+   0123 F1            [10]  254 	pop	af
+   0124 5D            [ 4]  255 	ld	e,l
+   0125 C1            [10]  256 	pop	bc
+   0126 7B            [ 4]  257 	ld	a,e
+   0127 C6 30         [ 7]  258 	add	a, #0x30
+   0129 DD 6E F8      [19]  259 	ld	l,-8 (ix)
+   012C DD 66 F9      [19]  260 	ld	h,-7 (ix)
+   012F 77            [ 7]  261 	ld	(hl),a
+                            262 ;../../src/syslib/ansi_term.c:58: column -= (10 * (column / 10));
+   0130 6B            [ 4]  263 	ld	l,e
+   0131 29            [11]  264 	add	hl, hl
+   0132 29            [11]  265 	add	hl, hl
+   0133 19            [11]  266 	add	hl, de
+   0134 29            [11]  267 	add	hl, hl
+   0135 DD 7E 04      [19]  268 	ld	a,4 (ix)
+   0138 95            [ 4]  269 	sub	a, l
+                            270 ;../../src/syslib/ansi_term.c:59: cmd[7] = column + 0x30;
+   0139 DD 77 04      [19]  271 	ld	4 (ix), a
+   013C C6 30         [ 7]  272 	add	a, #0x30
+   013E DD 6E F6      [19]  273 	ld	l,-10 (ix)
+   0141 DD 66 F7      [19]  274 	ld	h,-9 (ix)
+   0144 77            [ 7]  275 	ld	(hl),a
+                            276 ;../../src/syslib/ansi_term.c:61: cmd[1] = (line / 100) + 0x30;
+   0145 C5            [11]  277 	push	bc
+   0146 3E 64         [ 7]  278 	ld	a,#0x64
+   0148 F5            [11]  279 	push	af
+   0149 33            [ 6]  280 	inc	sp
+   014A DD 7E 05      [19]  281 	ld	a,5 (ix)
+   014D F5            [11]  282 	push	af
+   014E 33            [ 6]  283 	inc	sp
+   014F CDr00r00      [17]  284 	call	__divuchar
+   0152 F1            [10]  285 	pop	af
+   0153 5D            [ 4]  286 	ld	e,l
+   0154 C1            [10]  287 	pop	bc
+   0155 7B            [ 4]  288 	ld	a,e
+   0156 C6 30         [ 7]  289 	add	a, #0x30
+   0158 DD 6E FE      [19]  290 	ld	l,-2 (ix)
+   015B DD 66 FF      [19]  291 	ld	h,-1 (ix)
+   015E 77            [ 7]  292 	ld	(hl),a
+                            293 ;../../src/syslib/ansi_term.c:62: line -= (100 * (line / 100));
+   015F 6B            [ 4]  294 	ld	l,e
+   0160 29            [11]  295 	add	hl, hl
+   0161 19            [11]  296 	add	hl, de
+   0162 29            [11]  297 	add	hl, hl
+   0163 29            [11]  298 	add	hl, hl
+   0164 29            [11]  299 	add	hl, hl
+   0165 19            [11]  300 	add	hl, de
+   0166 29            [11]  301 	add	hl, hl
+   0167 29            [11]  302 	add	hl, hl
+   0168 DD 7E 05      [19]  303 	ld	a,5 (ix)
+   016B 95            [ 4]  304 	sub	a, l
+   016C DD 77 05      [19]  305 	ld	5 (ix),a
+                            306 ;../../src/syslib/ansi_term.c:63: cmd[2] = (line / 10) + 0x30;
+   016F C5            [11]  307 	push	bc
+   0170 3E 0A         [ 7]  308 	ld	a,#0x0a
+   0172 F5            [11]  309 	push	af
+   0173 33            [ 6]  310 	inc	sp
+   0174 DD 7E 05      [19]  311 	ld	a,5 (ix)
+   0177 F5            [11]  312 	push	af
+   0178 33            [ 6]  313 	inc	sp
+   0179 CDr00r00      [17]  314 	call	__divuchar
+   017C F1            [10]  315 	pop	af
+   017D 5D            [ 4]  316 	ld	e,l
+   017E C1            [10]  317 	pop	bc
+   017F 7B            [ 4]  318 	ld	a,e
+   0180 C6 30         [ 7]  319 	add	a, #0x30
+   0182 DD 6E FC      [19]  320 	ld	l,-4 (ix)
+   0185 DD 66 FD      [19]  321 	ld	h,-3 (ix)
+   0188 77            [ 7]  322 	ld	(hl),a
+                            323 ;../../src/syslib/ansi_term.c:64: line -= (10 * (line / 10));
+   0189 6B            [ 4]  324 	ld	l,e
+   018A 29            [11]  325 	add	hl, hl
+   018B 29            [11]  326 	add	hl, hl
+   018C 19            [11]  327 	add	hl, de
+   018D 29            [11]  328 	add	hl, hl
+   018E DD 7E 05      [19]  329 	ld	a,5 (ix)
+   0191 95            [ 4]  330 	sub	a, l
+                            331 ;../../src/syslib/ansi_term.c:65: cmd[3] = line + 0x30;
+   0192 DD 77 05      [19]  332 	ld	5 (ix), a
+   0195 C6 30         [ 7]  333 	add	a, #0x30
+   0197 DD 6E FA      [19]  334 	ld	l,-6 (ix)
+   019A DD 66 FB      [19]  335 	ld	h,-5 (ix)
+   019D 77            [ 7]  336 	ld	(hl),a
+                            337 ;../../src/syslib/ansi_term.c:67: term_sendCommand(cmd);
+   019E C5            [11]  338 	push	bc
+   019F CDr21r04      [17]  339 	call	_term_sendCommand
+   01A2 DD F9         [10]  340 	ld	sp,ix
+   01A4 DD E1         [14]  341 	pop	ix
+   01A6 C9            [10]  342 	ret
+                            343 ;../../src/syslib/ansi_term.c:70: void term_ANSICursorMove(uint8_t spaces, ModeDir dir) {
+                            344 ;	---------------------------------
+                            345 ; Function term_ANSICursorMove
+                            346 ; ---------------------------------
+   01A7                     347 _term_ANSICursorMove::
+   01A7 DD E5         [15]  348 	push	ix
+   01A9 DD 21 00 00   [14]  349 	ld	ix,#0
+   01AD DD 39         [15]  350 	add	ix,sp
+   01AF 21 F4 FF      [10]  351 	ld	hl,#-12
+   01B2 39            [11]  352 	add	hl,sp
+   01B3 F9            [ 6]  353 	ld	sp,hl
+                            354 ;../../src/syslib/ansi_term.c:71: char cmd[] = ANSI_CURMOVE;
+   01B4 21 00 00      [10]  355 	ld	hl,#0x0000
+   01B7 39            [11]  356 	add	hl,sp
+   01B8 4D            [ 4]  357 	ld	c,l
+   01B9 44            [ 4]  358 	ld	b,h
+   01BA 36 5B         [10]  359 	ld	(hl),#0x5b
+   01BC 21 01 00      [10]  360 	ld	hl,#0x0001
+   01BF 09            [11]  361 	add	hl,bc
+   01C0 DD 75 FE      [19]  362 	ld	-2 (ix),l
+   01C3 DD 74 FF      [19]  363 	ld	-1 (ix),h
+   01C6 DD 6E FE      [19]  364 	ld	l,-2 (ix)
+   01C9 DD 66 FF      [19]  365 	ld	h,-1 (ix)
+   01CC 36 5F         [10]  366 	ld	(hl),#0x5f
+   01CE 21 02 00      [10]  367 	ld	hl,#0x0002
+   01D1 09            [11]  368 	add	hl,bc
+   01D2 DD 75 FC      [19]  369 	ld	-4 (ix),l
+   01D5 DD 74 FD      [19]  370 	ld	-3 (ix),h
+   01D8 DD 6E FC      [19]  371 	ld	l,-4 (ix)
+   01DB DD 66 FD      [19]  372 	ld	h,-3 (ix)
+   01DE 36 5F         [10]  373 	ld	(hl),#0x5f
+   01E0 21 03 00      [10]  374 	ld	hl,#0x0003
+   01E3 09            [11]  375 	add	hl,bc
+   01E4 DD 75 FA      [19]  376 	ld	-6 (ix),l
+   01E7 DD 74 FB      [19]  377 	ld	-5 (ix),h
+   01EA DD 6E FA      [19]  378 	ld	l,-6 (ix)
+   01ED DD 66 FB      [19]  379 	ld	h,-5 (ix)
+   01F0 36 5F         [10]  380 	ld	(hl),#0x5f
+   01F2 21 04 00      [10]  381 	ld	hl,#0x0004
+   01F5 09            [11]  382 	add	hl,bc
+   01F6 EB            [ 4]  383 	ex	de,hl
+   01F7 3E 58         [ 7]  384 	ld	a,#0x58
+   01F9 12            [ 7]  385 	ld	(de),a
+   01FA 21 05 00      [10]  386 	ld	hl,#0x0005
+   01FD 09            [11]  387 	add	hl,bc
+   01FE 36 00         [10]  388 	ld	(hl),#0x00
+                            389 ;../../src/syslib/ansi_term.c:73: switch (dir) {
+   0200 3E 03         [ 7]  390 	ld	a,#0x03
+   0202 DD 96 05      [19]  391 	sub	a, 5 (ix)
+   0205 38 24         [12]  392 	jr	C,00105$
+   0207 D5            [11]  393 	push	de
+   0208 DD 5E 05      [19]  394 	ld	e,5 (ix)
+   020B 16 00         [ 7]  395 	ld	d,#0x00
+   020D 21r14r02      [10]  396 	ld	hl,#00113$
+   0210 19            [11]  397 	add	hl,de
+   0211 19            [11]  398 	add	hl,de
+                            399 ;../../src/syslib/ansi_term.c:74: case md_move_up:
+   0212 D1            [10]  400 	pop	de
+   0213 E9            [ 4]  401 	jp	(hl)
+   0214                     402 00113$:
+   0214 18 06         [12]  403 	jr	00101$
+   0216 18 09         [12]  404 	jr	00102$
+   0218 18 11         [12]  405 	jr	00104$
+   021A 18 0A         [12]  406 	jr	00103$
+   021C                     407 00101$:
+                            408 ;../../src/syslib/ansi_term.c:75: cmd[4] = 'A';
+   021C 3E 41         [ 7]  409 	ld	a,#0x41
+   021E 12            [ 7]  410 	ld	(de),a
+                            411 ;../../src/syslib/ansi_term.c:76: break;
+   021F 18 0D         [12]  412 	jr	00106$
+                            413 ;../../src/syslib/ansi_term.c:77: case md_move_down:
+   0221                     414 00102$:
+                            415 ;../../src/syslib/ansi_term.c:78: cmd[4] = 'B';
+   0221 3E 42         [ 7]  416 	ld	a,#0x42
+   0223 12            [ 7]  417 	ld	(de),a
+                            418 ;../../src/syslib/ansi_term.c:79: break;
+   0224 18 08         [12]  419 	jr	00106$
+                            420 ;../../src/syslib/ansi_term.c:80: case md_move_right:
+   0226                     421 00103$:
+                            422 ;../../src/syslib/ansi_term.c:81: cmd[4] = 'C';
+   0226 3E 43         [ 7]  423 	ld	a,#0x43
+   0228 12            [ 7]  424 	ld	(de),a
+                            425 ;../../src/syslib/ansi_term.c:82: break;
+   0229 18 03         [12]  426 	jr	00106$
+                            427 ;../../src/syslib/ansi_term.c:83: case md_move_left:
+   022B                     428 00104$:
+                            429 ;../../src/syslib/ansi_term.c:84: default:
+   022B                     430 00105$:
+                            431 ;../../src/syslib/ansi_term.c:85: cmd[4] = 'D';
+   022B 3E 44         [ 7]  432 	ld	a,#0x44
+   022D 12            [ 7]  433 	ld	(de),a
+                            434 ;../../src/syslib/ansi_term.c:87: }
+   022E                     435 00106$:
+                            436 ;../../src/syslib/ansi_term.c:90: cmd[1] = (spaces / 100) + 0x30;
+   022E C5            [11]  437 	push	bc
+   022F 3E 64         [ 7]  438 	ld	a,#0x64
+   0231 F5            [11]  439 	push	af
+   0232 33            [ 6]  440 	inc	sp
+   0233 DD 7E 04      [19]  441 	ld	a,4 (ix)
+   0236 F5            [11]  442 	push	af
+   0237 33            [ 6]  443 	inc	sp
+   0238 CDr00r00      [17]  444 	call	__divuchar
+   023B F1            [10]  445 	pop	af
+   023C 5D            [ 4]  446 	ld	e,l
+   023D C1            [10]  447 	pop	bc
+   023E 7B            [ 4]  448 	ld	a,e
+   023F C6 30         [ 7]  449 	add	a, #0x30
+   0241 DD 6E FE      [19]  450 	ld	l,-2 (ix)
+   0244 DD 66 FF      [19]  451 	ld	h,-1 (ix)
+   0247 77            [ 7]  452 	ld	(hl),a
+                            453 ;../../src/syslib/ansi_term.c:91: spaces -= (100 * (spaces / 100));
+   0248 6B            [ 4]  454 	ld	l,e
+   0249 29            [11]  455 	add	hl, hl
+   024A 19            [11]  456 	add	hl, de
+   024B 29            [11]  457 	add	hl, hl
+   024C 29            [11]  458 	add	hl, hl
+   024D 29            [11]  459 	add	hl, hl
+   024E 19            [11]  460 	add	hl, de
+   024F 29            [11]  461 	add	hl, hl
+   0250 29            [11]  462 	add	hl, hl
+   0251 DD 7E 04      [19]  463 	ld	a,4 (ix)
+   0254 95            [ 4]  464 	sub	a, l
+   0255 DD 77 04      [19]  465 	ld	4 (ix),a
+                            466 ;../../src/syslib/ansi_term.c:92: cmd[2] = (spaces / 10) + 0x30;
+   0258 C5            [11]  467 	push	bc
+   0259 3E 0A         [ 7]  468 	ld	a,#0x0a
+   025B F5            [11]  469 	push	af
+   025C 33            [ 6]  470 	inc	sp
+   025D DD 7E 04      [19]  471 	ld	a,4 (ix)
+   0260 F5            [11]  472 	push	af
+   0261 33            [ 6]  473 	inc	sp
+   0262 CDr00r00      [17]  474 	call	__divuchar
+   0265 F1            [10]  475 	pop	af
+   0266 5D            [ 4]  476 	ld	e,l
+   0267 C1            [10]  477 	pop	bc
+   0268 7B            [ 4]  478 	ld	a,e
+   0269 C6 30         [ 7]  479 	add	a, #0x30
+   026B DD 6E FC      [19]  480 	ld	l,-4 (ix)
+   026E DD 66 FD      [19]  481 	ld	h,-3 (ix)
+   0271 77            [ 7]  482 	ld	(hl),a
+                            483 ;../../src/syslib/ansi_term.c:93: spaces -= (10 * (spaces / 10));
+   0272 6B            [ 4]  484 	ld	l,e
+   0273 29            [11]  485 	add	hl, hl
+   0274 29            [11]  486 	add	hl, hl
+   0275 19            [11]  487 	add	hl, de
+   0276 29            [11]  488 	add	hl, hl
+   0277 DD 7E 04      [19]  489 	ld	a,4 (ix)
+   027A 95            [ 4]  490 	sub	a, l
+                            491 ;../../src/syslib/ansi_term.c:94: cmd[3] = spaces + 0x30;
+   027B DD 77 04      [19]  492 	ld	4 (ix), a
+   027E C6 30         [ 7]  493 	add	a, #0x30
+   0280 DD 6E FA      [19]  494 	ld	l,-6 (ix)
+   0283 DD 66 FB      [19]  495 	ld	h,-5 (ix)
+   0286 77            [ 7]  496 	ld	(hl),a
+                            497 ;../../src/syslib/ansi_term.c:96: term_sendCommand(cmd);
+   0287 C5            [11]  498 	push	bc
+   0288 CDr21r04      [17]  499 	call	_term_sendCommand
+   028B DD F9         [10]  500 	ld	sp,ix
+   028D DD E1         [14]  501 	pop	ix
+   028F C9            [10]  502 	ret
+                            503 ;../../src/syslib/ansi_term.c:99: void term_ANSIClrLine(EraseDir dir) {
+                            504 ;	---------------------------------
+                            505 ; Function term_ANSIClrLine
+                            506 ; ---------------------------------
+   0290                     507 _term_ANSIClrLine::
+   0290 DD E5         [15]  508 	push	ix
+   0292 DD 21 00 00   [14]  509 	ld	ix,#0
+   0296 DD 39         [15]  510 	add	ix,sp
+   0298 F5            [11]  511 	push	af
+   0299 F5            [11]  512 	push	af
+                            513 ;../../src/syslib/ansi_term.c:100: char cmd[] = ANSI_CLRLINE;
+   029A 21 00 00      [10]  514 	ld	hl,#0x0000
+   029D 39            [11]  515 	add	hl,sp
+   029E 4D            [ 4]  516 	ld	c,l
+   029F 44            [ 4]  517 	ld	b,h
+   02A0 36 5B         [10]  518 	ld	(hl),#0x5b
+   02A2 59            [ 4]  519 	ld	e, c
+   02A3 50            [ 4]  520 	ld	d, b
+   02A4 13            [ 6]  521 	inc	de
+   02A5 3E 5F         [ 7]  522 	ld	a,#0x5f
+   02A7 12            [ 7]  523 	ld	(de),a
+   02A8 69            [ 4]  524 	ld	l, c
+   02A9 60            [ 4]  525 	ld	h, b
+   02AA 23            [ 6]  526 	inc	hl
+   02AB 23            [ 6]  527 	inc	hl
+   02AC 36 4B         [10]  528 	ld	(hl),#0x4b
+   02AE 69            [ 4]  529 	ld	l, c
+   02AF 60            [ 4]  530 	ld	h, b
+   02B0 23            [ 6]  531 	inc	hl
+   02B1 23            [ 6]  532 	inc	hl
+   02B2 23            [ 6]  533 	inc	hl
+   02B3 36 00         [10]  534 	ld	(hl),#0x00
+                            535 ;../../src/syslib/ansi_term.c:102: switch(dir) {
+   02B5 3E 02         [ 7]  536 	ld	a,#0x02
+   02B7 DD 96 04      [19]  537 	sub	a, 4 (ix)
+   02BA 38 1D         [12]  538 	jr	C,00104$
+   02BC D5            [11]  539 	push	de
+   02BD DD 5E 04      [19]  540 	ld	e,4 (ix)
+   02C0 16 00         [ 7]  541 	ld	d,#0x00
+   02C2 21rC9r02      [10]  542 	ld	hl,#00112$
+   02C5 19            [11]  543 	add	hl,de
+   02C6 19            [11]  544 	add	hl,de
+                            545 ;../../src/syslib/ansi_term.c:103: case ed_erase_after:
+   02C7 D1            [10]  546 	pop	de
+   02C8 E9            [ 4]  547 	jp	(hl)
+   02C9                     548 00112$:
+   02C9 18 09         [12]  549 	jr	00102$
+   02CB 18 02         [12]  550 	jr	00101$
+   02CD 18 0A         [12]  551 	jr	00103$
+   02CF                     552 00101$:
+                            553 ;../../src/syslib/ansi_term.c:104: cmd[1] = '0';
+   02CF 3E 30         [ 7]  554 	ld	a,#0x30
+   02D1 12            [ 7]  555 	ld	(de),a
+                            556 ;../../src/syslib/ansi_term.c:105: break;
+   02D2 18 08         [12]  557 	jr	00105$
+                            558 ;../../src/syslib/ansi_term.c:106: case ed_erase_before:
+   02D4                     559 00102$:
+                            560 ;../../src/syslib/ansi_term.c:107: cmd[1] = '1';
+   02D4 3E 31         [ 7]  561 	ld	a,#0x31
+   02D6 12            [ 7]  562 	ld	(de),a
+                            563 ;../../src/syslib/ansi_term.c:108: break;
+   02D7 18 03         [12]  564 	jr	00105$
+                            565 ;../../src/syslib/ansi_term.c:109: case ed_erase_all:
+   02D9                     566 00103$:
+                            567 ;../../src/syslib/ansi_term.c:110: default:
+   02D9                     568 00104$:
+                            569 ;../../src/syslib/ansi_term.c:111: cmd[1] = '2';
+   02D9 3E 32         [ 7]  570 	ld	a,#0x32
+   02DB 12            [ 7]  571 	ld	(de),a
+                            572 ;../../src/syslib/ansi_term.c:113: }
+   02DC                     573 00105$:
+                            574 ;../../src/syslib/ansi_term.c:115: term_sendCommand(cmd);
+   02DC C5            [11]  575 	push	bc
+   02DD CDr21r04      [17]  576 	call	_term_sendCommand
+   02E0 DD F9         [10]  577 	ld	sp,ix
+   02E2 DD E1         [14]  578 	pop	ix
+   02E4 C9            [10]  579 	ret
+                            580 ;../../src/syslib/ansi_term.c:118: void term_ANSIClrScrn(EraseDir dir) {
+                            581 ;	---------------------------------
+                            582 ; Function term_ANSIClrScrn
+                            583 ; ---------------------------------
+   02E5                     584 _term_ANSIClrScrn::
+   02E5 DD E5         [15]  585 	push	ix
+   02E7 DD 21 00 00   [14]  586 	ld	ix,#0
+   02EB DD 39         [15]  587 	add	ix,sp
+   02ED F5            [11]  588 	push	af
+   02EE F5            [11]  589 	push	af
+                            590 ;../../src/syslib/ansi_term.c:119: char cmd[] = ANSI_CLRSCRN;
+   02EF 21 00 00      [10]  591 	ld	hl,#0x0000
+   02F2 39            [11]  592 	add	hl,sp
+   02F3 4D            [ 4]  593 	ld	c,l
+   02F4 44            [ 4]  594 	ld	b,h
+   02F5 36 5B         [10]  595 	ld	(hl),#0x5b
+   02F7 59            [ 4]  596 	ld	e, c
+   02F8 50            [ 4]  597 	ld	d, b
+   02F9 13            [ 6]  598 	inc	de
+   02FA 3E 5F         [ 7]  599 	ld	a,#0x5f
+   02FC 12            [ 7]  600 	ld	(de),a
+   02FD 69            [ 4]  601 	ld	l, c
+   02FE 60            [ 4]  602 	ld	h, b
+   02FF 23            [ 6]  603 	inc	hl
+   0300 23            [ 6]  604 	inc	hl
+   0301 36 4A         [10]  605 	ld	(hl),#0x4a
+   0303 69            [ 4]  606 	ld	l, c
+   0304 60            [ 4]  607 	ld	h, b
+   0305 23            [ 6]  608 	inc	hl
+   0306 23            [ 6]  609 	inc	hl
+   0307 23            [ 6]  610 	inc	hl
+   0308 36 00         [10]  611 	ld	(hl),#0x00
+                            612 ;../../src/syslib/ansi_term.c:121: switch(dir) {
+   030A 3E 02         [ 7]  613 	ld	a,#0x02
+   030C DD 96 04      [19]  614 	sub	a, 4 (ix)
+   030F 38 18         [12]  615 	jr	C,00104$
+   0311 D5            [11]  616 	push	de
+   0312 DD 5E 04      [19]  617 	ld	e,4 (ix)
+   0315 16 00         [ 7]  618 	ld	d,#0x00
+   0317 21r1Er03      [10]  619 	ld	hl,#00112$
+   031A 19            [11]  620 	add	hl,de
+   031B 19            [11]  621 	add	hl,de
+                            622 ;../../src/syslib/ansi_term.c:122: case ed_erase_after:
+   031C D1            [10]  623 	pop	de
+   031D E9            [ 4]  624 	jp	(hl)
+   031E                     625 00112$:
+   031E 18 04         [12]  626 	jr	00102$
+   0320 18 02         [12]  627 	jr	00101$
+   0322 18 05         [12]  628 	jr	00103$
+   0324                     629 00101$:
+                            630 ;../../src/syslib/ansi_term.c:123: case ed_erase_before:
+   0324                     631 00102$:
+                            632 ;../../src/syslib/ansi_term.c:124: cmd[1] = '0';
+   0324 3E 30         [ 7]  633 	ld	a,#0x30
+   0326 12            [ 7]  634 	ld	(de),a
+                            635 ;../../src/syslib/ansi_term.c:125: break;
+   0327 18 03         [12]  636 	jr	00105$
+                            637 ;../../src/syslib/ansi_term.c:126: case ed_erase_all:
+   0329                     638 00103$:
+                            639 ;../../src/syslib/ansi_term.c:127: default:
+   0329                     640 00104$:
+                            641 ;../../src/syslib/ansi_term.c:128: cmd[1] = '2';
+   0329 3E 32         [ 7]  642 	ld	a,#0x32
+   032B 12            [ 7]  643 	ld	(de),a
+                            644 ;../../src/syslib/ansi_term.c:130: }
+   032C                     645 00105$:
+                            646 ;../../src/syslib/ansi_term.c:132: term_sendCommand(cmd);
+   032C C5            [11]  647 	push	bc
+   032D CDr21r04      [17]  648 	call	_term_sendCommand
+   0330 DD F9         [10]  649 	ld	sp,ix
+   0332 DD E1         [14]  650 	pop	ix
+   0334 C9            [10]  651 	ret
+                            652 ;../../src/syslib/ansi_term.c:135: void term_ANSISetParam(uint8_t prm) {
+                            653 ;	---------------------------------
+                            654 ; Function term_ANSISetParam
+                            655 ; ---------------------------------
+   0335                     656 _term_ANSISetParam::
+   0335 DD E5         [15]  657 	push	ix
+   0337 DD 21 00 00   [14]  658 	ld	ix,#0
+   033B DD 39         [15]  659 	add	ix,sp
+   033D 21 F2 FF      [10]  660 	ld	hl,#-14
+   0340 39            [11]  661 	add	hl,sp
+   0341 F9            [ 6]  662 	ld	sp,hl
+                            663 ;../../src/syslib/ansi_term.c:136: char cmd[] = "[_;_;_;_;_m";
+   0342 21 00 00      [10]  664 	ld	hl,#0x0000
+   0345 39            [11]  665 	add	hl,sp
+   0346 4D            [ 4]  666 	ld	c,l
+   0347 44            [ 4]  667 	ld	b,h
+   0348 36 5B         [10]  668 	ld	(hl),#0x5b
+   034A 21 01 00      [10]  669 	ld	hl,#0x0001
+   034D 09            [11]  670 	add	hl,bc
+   034E DD 75 FE      [19]  671 	ld	-2 (ix),l
+   0351 DD 74 FF      [19]  672 	ld	-1 (ix),h
+   0354 DD 6E FE      [19]  673 	ld	l,-2 (ix)
+   0357 DD 66 FF      [19]  674 	ld	h,-1 (ix)
+   035A 36 5F         [10]  675 	ld	(hl),#0x5f
+   035C 69            [ 4]  676 	ld	l, c
+   035D 60            [ 4]  677 	ld	h, b
+   035E 23            [ 6]  678 	inc	hl
+   035F 23            [ 6]  679 	inc	hl
+   0360 36 3B         [10]  680 	ld	(hl),#0x3b
+   0362 69            [ 4]  681 	ld	l, c
+   0363 60            [ 4]  682 	ld	h, b
+   0364 23            [ 6]  683 	inc	hl
+   0365 23            [ 6]  684 	inc	hl
+   0366 23            [ 6]  685 	inc	hl
+   0367 36 5F         [10]  686 	ld	(hl),#0x5f
+   0369 21 04 00      [10]  687 	ld	hl,#0x0004
+   036C 09            [11]  688 	add	hl,bc
+   036D 36 3B         [10]  689 	ld	(hl),#0x3b
+   036F 21 05 00      [10]  690 	ld	hl,#0x0005
+   0372 09            [11]  691 	add	hl,bc
+   0373 36 5F         [10]  692 	ld	(hl),#0x5f
+   0375 21 06 00      [10]  693 	ld	hl,#0x0006
+   0378 09            [11]  694 	add	hl,bc
+   0379 36 3B         [10]  695 	ld	(hl),#0x3b
+   037B 21 07 00      [10]  696 	ld	hl,#0x0007
+   037E 09            [11]  697 	add	hl,bc
+   037F 36 5F         [10]  698 	ld	(hl),#0x5f
+   0381 21 08 00      [10]  699 	ld	hl,#0x0008
+   0384 09            [11]  700 	add	hl,bc
+   0385 36 3B         [10]  701 	ld	(hl),#0x3b
+   0387 21 09 00      [10]  702 	ld	hl,#0x0009
+   038A 09            [11]  703 	add	hl,bc
+   038B 36 5F         [10]  704 	ld	(hl),#0x5f
+   038D 21 0A 00      [10]  705 	ld	hl,#0x000a
+   0390 09            [11]  706 	add	hl,bc
+   0391 36 6D         [10]  707 	ld	(hl),#0x6d
+   0393 21 0B 00      [10]  708 	ld	hl,#0x000b
+   0396 09            [11]  709 	add	hl,bc
+   0397 36 00         [10]  710 	ld	(hl),#0x00
+                            711 ;../../src/syslib/ansi_term.c:137: int idx = 1;
+   0399 11 01 00      [10]  712 	ld	de,#0x0001
+                            713 ;../../src/syslib/ansi_term.c:139: if (ANSI_P_CHK_AOFF(prm)) {
+   039C DD CB 04 46   [20]  714 	bit	0, 4 (ix)
+   03A0 28 0B         [12]  715 	jr	Z,00102$
+                            716 ;../../src/syslib/ansi_term.c:140: cmd[idx] = '0';
+   03A2 DD 6E FE      [19]  717 	ld	l,-2 (ix)
+   03A5 DD 66 FF      [19]  718 	ld	h,-1 (ix)
+   03A8 36 30         [10]  719 	ld	(hl),#0x30
+                            720 ;../../src/syslib/ansi_term.c:141: idx += 2;
+   03AA 11 03 00      [10]  721 	ld	de,#0x0003
+   03AD                     722 00102$:
+                            723 ;../../src/syslib/ansi_term.c:144: if (ANSI_P_CHK_BOLD(prm)) {
+   03AD DD CB 04 4E   [20]  724 	bit	1, 4 (ix)
+   03B1 28 07         [12]  725 	jr	Z,00104$
+                            726 ;../../src/syslib/ansi_term.c:145: cmd[idx] = '1';
+   03B3 6B            [ 4]  727 	ld	l, e
+   03B4 62            [ 4]  728 	ld	h, d
+   03B5 09            [11]  729 	add	hl,bc
+   03B6 36 31         [10]  730 	ld	(hl),#0x31
+                            731 ;../../src/syslib/ansi_term.c:146: idx += 2;
+   03B8 13            [ 6]  732 	inc	de
+   03B9 13            [ 6]  733 	inc	de
+   03BA                     734 00104$:
+                            735 ;../../src/syslib/ansi_term.c:149: if (ANSI_P_CHK_UNDR(prm)) {
+   03BA DD CB 04 56   [20]  736 	bit	2, 4 (ix)
+   03BE 28 07         [12]  737 	jr	Z,00106$
+                            738 ;../../src/syslib/ansi_term.c:150: cmd[idx] = '4';
+   03C0 6B            [ 4]  739 	ld	l, e
+   03C1 62            [ 4]  740 	ld	h, d
+   03C2 09            [11]  741 	add	hl,bc
+   03C3 36 34         [10]  742 	ld	(hl),#0x34
+                            743 ;../../src/syslib/ansi_term.c:151: idx += 2;
+   03C5 13            [ 6]  744 	inc	de
+   03C6 13            [ 6]  745 	inc	de
+   03C7                     746 00106$:
+                            747 ;../../src/syslib/ansi_term.c:154: if (ANSI_P_CHK_BLNK(prm)) {
+   03C7 DD CB 04 5E   [20]  748 	bit	3, 4 (ix)
+   03CB 28 07         [12]  749 	jr	Z,00108$
+                            750 ;../../src/syslib/ansi_term.c:155: cmd[idx] = '5';
+   03CD 6B            [ 4]  751 	ld	l, e
+   03CE 62            [ 4]  752 	ld	h, d
+   03CF 09            [11]  753 	add	hl,bc
+   03D0 36 35         [10]  754 	ld	(hl),#0x35
+                            755 ;../../src/syslib/ansi_term.c:156: idx += 2;
+   03D2 13            [ 6]  756 	inc	de
+   03D3 13            [ 6]  757 	inc	de
+   03D4                     758 00108$:
+                            759 ;../../src/syslib/ansi_term.c:159: if (ANSI_P_CHK_REVR(prm)) {
+   03D4 DD CB 04 66   [20]  760 	bit	4, 4 (ix)
+   03D8 28 07         [12]  761 	jr	Z,00110$
+                            762 ;../../src/syslib/ansi_term.c:160: cmd[idx] = '7';
+   03DA 6B            [ 4]  763 	ld	l, e
+   03DB 62            [ 4]  764 	ld	h, d
+   03DC 09            [11]  765 	add	hl,bc
+   03DD 36 37         [10]  766 	ld	(hl),#0x37
+                            767 ;../../src/syslib/ansi_term.c:161: idx += 2;
+   03DF 13            [ 6]  768 	inc	de
+   03E0 13            [ 6]  769 	inc	de
+   03E1                     770 00110$:
+                            771 ;../../src/syslib/ansi_term.c:164: cmd[idx - 1] = 'm';
+   03E1 6B            [ 4]  772 	ld	l,e
+   03E2 2D            [ 4]  773 	dec	l
+   03E3 26 00         [ 7]  774 	ld	h,#0x00
+   03E5 09            [11]  775 	add	hl,bc
+   03E6 36 6D         [10]  776 	ld	(hl),#0x6d
+                            777 ;../../src/syslib/ansi_term.c:165: cmd[idx] = '\0';
+   03E8 EB            [ 4]  778 	ex	de,hl
+   03E9 09            [11]  779 	add	hl,bc
+   03EA 36 00         [10]  780 	ld	(hl),#0x00
+                            781 ;../../src/syslib/ansi_term.c:167: term_sendCommand(cmd);
+   03EC C5            [11]  782 	push	bc
+   03ED CDr21r04      [17]  783 	call	_term_sendCommand
+   03F0 DD F9         [10]  784 	ld	sp,ix
+   03F2 DD E1         [14]  785 	pop	ix
+   03F4 C9            [10]  786 	ret
+                            787 ;../../src/syslib/ansi_term.c:170: void term_ANSISaveCursor(void) {
+                            788 ;	---------------------------------
+                            789 ; Function term_ANSISaveCursor
+                            790 ; ---------------------------------
+   03F5                     791 _term_ANSISaveCursor::
+                            792 ;../../src/syslib/ansi_term.c:171: term_sendCommand(ANSI_SAVECUR);
+   03F5 21rFEr03      [10]  793 	ld	hl,#___str_7
+   03F8 E5            [11]  794 	push	hl
+   03F9 CDr21r04      [17]  795 	call	_term_sendCommand
+   03FC F1            [10]  796 	pop	af
+   03FD C9            [10]  797 	ret
+   03FE                     798 ___str_7:
+   03FE 37                  799 	.ascii "7"
+   03FF 00                  800 	.db 0x00
+                            801 ;../../src/syslib/ansi_term.c:174: void term_ANSIRestoreCursor(void) {
+                            802 ;	---------------------------------
+                            803 ; Function term_ANSIRestoreCursor
+                            804 ; ---------------------------------
+   0400                     805 _term_ANSIRestoreCursor::
+                            806 ;../../src/syslib/ansi_term.c:175: term_sendCommand(ANSI_RESTCUR);
+   0400 21r09r04      [10]  807 	ld	hl,#___str_8
+   0403 E5            [11]  808 	push	hl
+   0404 CDr21r04      [17]  809 	call	_term_sendCommand
+   0407 F1            [10]  810 	pop	af
+   0408 C9            [10]  811 	ret
+   0409                     812 ___str_8:
+   0409 38                  813 	.ascii "8"
+   040A 00                  814 	.db 0x00
+                            815 ;../../src/syslib/ansi_term.c:178: void term_ANSIIndex(void) {
+                            816 ;	---------------------------------
+                            817 ; Function term_ANSIIndex
+                            818 ; ---------------------------------
+   040B                     819 _term_ANSIIndex::
+                            820 ;../../src/syslib/ansi_term.c:179: term_sendCommand(ANSI_IDX);
+   040B 21r14r04      [10]  821 	ld	hl,#___str_9
+   040E E5            [11]  822 	push	hl
+   040F CDr21r04      [17]  823 	call	_term_sendCommand
+   0412 F1            [10]  824 	pop	af
+   0413 C9            [10]  825 	ret
+   0414                     826 ___str_9:
+   0414 44                  827 	.ascii "D"
+   0415 00                  828 	.db 0x00
+                            829 ;../../src/syslib/ansi_term.c:182: void term_ANSIReverseIndex(void) {
+                            830 ;	---------------------------------
+                            831 ; Function term_ANSIReverseIndex
+                            832 ; ---------------------------------
+   0416                     833 _term_ANSIReverseIndex::
+                            834 ;../../src/syslib/ansi_term.c:183: term_sendCommand(ANSI_REVIDX);	
+   0416 21r1Fr04      [10]  835 	ld	hl,#___str_10
+   0419 E5            [11]  836 	push	hl
+   041A CDr21r04      [17]  837 	call	_term_sendCommand
+   041D F1            [10]  838 	pop	af
+   041E C9            [10]  839 	ret
+   041F                     840 ___str_10:
+   041F 4D                  841 	.ascii "M"
+   0420 00                  842 	.db 0x00
+                            843 ;../../src/syslib/ansi_term.c:186: void term_sendCommand(char *cmd) {
+                            844 ;	---------------------------------
+                            845 ; Function term_sendCommand
+                            846 ; ---------------------------------
+   0421                     847 _term_sendCommand::
+                            848 ;../../src/syslib/ansi_term.c:189: cpm_putchar(ESC_CHR);
+   0421 3E 1B         [ 7]  849 	ld	a,#0x1b
+   0423 F5            [11]  850 	push	af
+   0424 33            [ 6]  851 	inc	sp
+   0425 CDr00r00      [17]  852 	call	_cpm_putchar
+   0428 33            [ 6]  853 	inc	sp
+                            854 ;../../src/syslib/ansi_term.c:190: while (cmd[idx] != '\0') {
+   0429 01 00 00      [10]  855 	ld	bc,#0x0000
+   042C                     856 00101$:
+   042C 21 02 00      [10]  857 	ld	hl, #2
+   042F 39            [11]  858 	add	hl, sp
+   0430 7E            [ 7]  859 	ld	a, (hl)
+   0431 23            [ 6]  860 	inc	hl
+   0432 66            [ 7]  861 	ld	h, (hl)
+   0433 6F            [ 4]  862 	ld	l, a
+   0434 09            [11]  863 	add	hl,bc
+   0435 56            [ 7]  864 	ld	d,(hl)
+   0436 7A            [ 4]  865 	ld	a,d
+   0437 B7            [ 4]  866 	or	a, a
+   0438 C8            [11]  867 	ret	Z
+                            868 ;../../src/syslib/ansi_term.c:191: cpm_putchar(cmd[idx]);
+   0439 C5            [11]  869 	push	bc
+   043A D5            [11]  870 	push	de
+   043B 33            [ 6]  871 	inc	sp
+   043C CDr00r00      [17]  872 	call	_cpm_putchar
+   043F 33            [ 6]  873 	inc	sp
+   0440 C1            [10]  874 	pop	bc
+                            875 ;../../src/syslib/ansi_term.c:192: idx++;
+   0441 03            [ 6]  876 	inc	bc
+   0442 18 E8         [12]  877 	jr	00101$
+                            878 	.area _CODE
+                            879 	.area _INITIALIZER
+                            880 	.area _CABS (ABS)

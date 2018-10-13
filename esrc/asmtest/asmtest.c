@@ -174,8 +174,8 @@ int main() { // (int argc, char ** argv) {
 
     printf("Before...\n");
     //whatasm(greet);
-    //asmtest("FOO", 4);
-    ay_envelope();
+    asmtest("FOO", 4);
+    //ay_envelope();
 
     printf("\n...After\n");
 

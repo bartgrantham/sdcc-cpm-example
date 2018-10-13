@@ -1,11 +1,13 @@
 #include <setjmp.h>
-#include "i135.h"
+#include "cpmenv.h"
 #include "../../src/hw/common/hw_common.h"
 
 #define printf cprintf
 
-char sys_argv0[12];
-char *sys_argv[8];
+#define MAXARGS 17
+
+char sys_argv0[13];
+char *sys_argv[MAXARGS];
 void sys_init(int *argc, char ***argv)
 {
     char *p;
@@ -17,7 +19,7 @@ void sys_init(int *argc, char ***argv)
     count = *(unsigned char*)0x80; // CCP Command Tail Length
 
     *argc = 1;
-    sys_argv[0] = strcpy(sys_argv0, "ym.com");
+    sys_argv[0] = strcpy(sys_argv0, "cpmenv.com");
 
     p[count] = '\0'; // XXX count < 128!
     do {
@@ -31,7 +33,7 @@ void sys_init(int *argc, char ***argv)
         if(!*p)
             break;
         *p++ = '\0';
-    } while(*p && (*argc < 8));
+    } while(*p && (*argc < MAXARGS));
 
     *argv = sys_argv;
 }
@@ -48,14 +50,15 @@ void exit(int value)
 int main() { // (int argc, char ** argv) {
     int argc;
     char **argv;
-    uint8_t in;
+    int i;
 
     sys_init(&argc, &argv);
     if(setjmp(exit_jmp) != 0)
         return exit_value;
 
-    in = hw_inp(130);
-    printf("Read: 0x%.2X\n", in);
+    for(i=0; i<argc; i++) {
+        printf("%s\n", argv[i]);
+    }
 
     return 0;
 }
